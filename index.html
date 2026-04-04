@@ -1,50 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EngageMe Live</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .btn {
+            background-color: #28a745;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background-color: #218838;
+        }
+    </style>
 </head>
-<body style="background-color: #1a1a1a; color: white; font-family: sans-serif; text-align: center; padding-top: 50px;">
-    <h1>ENGAGEME.LIVE</h1>
-    <hr style="width: 50%; border: 1px solid gray;">
-  <div id="install-container" style="text-align: center; margin: 20px auto; padding: 20px; border: 2px solid #28a745; border-radius: 10px; background: #111; font-family: sans-serif; max-width: 500px;">
-  <h2 id="status-header" style="color: #28a745; margin-bottom: 10px;">✓ SYSTEM SECURE</h2>
-  <button id="installApp" style="padding: 20px; background: #28a745; color: white; font-size: 20px; border-radius: 10px; cursor: pointer; width: 100%; border: none; font-weight: bold; text-transform: uppercase;">ADD APP SHORTCUT</button>
-  <div id="desktop-instructions" style="display: none; text-align: left; margin-top: 20px; padding: 15px; background: #1a1a1a; border: 1px solid #444; border-radius: 8px;">
-    <p style="color: #fff; font-weight: bold; font-size: 18px; margin-top: 0;">Step 1: Look at your top right corner:</p>
-    <img src="i.imgur.com/vHqL3lO.png" style="width:100%; max-width:450px; border-radius: 5px; margin: 10px 0;">
-    <p style="color: #fff; font-size: 16px;">Step 2: Click those 3 lines and select "Install" or "Add to Home Screen".</p>
-  </div>
-</div>
-<script>
-  (function() {
-    const btn = document.getElementById('installApp');
-    const inst = document.getElementById('desktop-instructions');
-    const hdr = document.getElementById('status-header');
-    let defPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); defPrompt = e; });
-    btn.addEventListener('click', async () => {
-      if (defPrompt) { defPrompt.prompt(); } 
-      else { 
-        btn.style.display = 'none'; 
-        hdr.innerText = "INSTRUCTIONS BELOW"; 
-        inst.style.display = 'block'; 
-      }
-    });
- <div id="desktop-instructions" style="display: none; text-align: left; margin-top: 20px; padding: 15px; background: #1a1a1a; border: 1px solid #444; border-radius: 8px;">
-  <p style="color: #fff; font-weight: bold; font-size: 16px; margin-top: 0;">Step 1: Open Browser Menu</p>
-  <div style="background: #333; padding: 10px; border-radius: 5px; text-align: center; margin: 10px 0; color: #888; border: 1px dashed #555;">
-    <span style="font-size: 24px;">☰</span><br>
-    <small>(Look for the 3 lines in your top-right corner)</small>
-  </div>
-  <p style="color: #fff; font-size: 14px;">Step 2: Select <strong>"Install"</strong> or <strong>"Add to Home Screen"</strong> from the menu list.</p>
-</div>
+<body>
+
+    <h1>EngageMe Live</h1>
+    <p>Real-time networking for the world.</p>
+
+    <button id="installBtn" class="btn">Add App Shortcut</button>
 
     <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/engageme/sw.js')
-        .then(reg => console.log('Service Worker Registered'))
-        .catch(err => console.log('Service Worker Failed', err));
-    });
-  }
-</script>
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                }
+                deferredPrompt = null;
+            } else {
+                alert("To install: Click the 'Install' icon in your browser's address bar or 'Add to Home Screen' in your menu.");
+            }
+        });
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+
+</body>
+</html>
