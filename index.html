@@ -6,29 +6,26 @@
     <title>EngageMe Live</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        body {
-            background-color: #000000;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
+        body { 
+            background-color: #000000; 
+            color: #ffffff; 
+            font-family: Arial, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
         }
-        .btn {
-            background-color: #28a745;
-            color: white;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .btn:hover {
-            background-color: #218838;
+        .btn { 
+            background-color: #28a745; 
+            color: white; 
+            padding: 15px 30px; 
+            font-size: 1.2rem; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            display: none; /* Button stays hidden until browser says it is 100% ready */
         }
     </style>
 </head>
@@ -43,29 +40,28 @@
         let deferredPrompt;
         const installBtn = document.getElementById('installBtn');
 
+        // Only shows the button when the browser is ready to show the official "Install" window
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            installBtn.style.display = 'block';
+            installBtn.style.display = 'block'; 
         });
 
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    console.log('User accepted the install prompt');
-                }
                 deferredPrompt = null;
-            } else {
-                alert("To install: Click the 'Install' icon in your browser's address bar or 'Add to Home Screen' in your menu.");
+                if (outcome === 'accepted') {
+                    installBtn.style.display = 'none';
+                }
             }
         });
 
+        // This registers the "Engine" (sw.js)
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
         }
     </script>
-
 </body>
 </html>
