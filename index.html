@@ -1,52 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>WTI FORCED LOAD</title>
-    <script type="text/javascript" src="s3.tradingview.com/tv.js"></script>
-    <style>
-        body { background: #000; margin: 0; padding: 20px; color: white; font-family: monospace; }
-        #status { margin-bottom: 10px; color: #007bff; }
-        /* RED BORDER TO TEST VISIBILITY */
-        #chart_frame { 
-            width: 95vw; 
-            height: 80vh; 
-            border: 2px solid red; 
-            background: #050505;
-        }
-    </style>
-</head>
-<body>
-    <div id="status">STATUS: ATTEMPTING HANDSHAKE...</div>
-    
-    <div id="chart_frame">
-        <div id="tv_target" style="height: 100%; width: 100%;"></div>
-    </div>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>WTI TERMINAL | IFRAME BYPASS</title>
+        <style>
+            body { background: #000; margin: 0; padding: 0; overflow: hidden; height: 100vh; }
+            /* THE WINDOW */
+            iframe {
+                width: 100%;
+                height: 100vh;
+                border: none;
+            }
+        </style>
+    </head>
+    <body>
 
-    <script type="text/javascript">
-        try {
-            new TradingView.widget({
-                "autosize": true,
-                "symbol": "NYMEX:CL1!",
-                "interval": "60",
-                "timezone": "Etc/UTC",
-                "theme": "dark",
-                "style": "1",
-                "locale": "en",
-                "toolbar_bg": "#f1f3f6",
-                "enable_publishing": false,
-                "withdateranges": true,
-                "hide_side_toolbar": false,
-                "allow_symbol_change": true,
-                "container_id": "tv_target",
-                "show_popup_button": true,
-                "popup_width": "1000",
-                "popup_height": "650"
-            });
-            document.getElementById('status').innerText = "STATUS: SCRIPT EXECUTED";
-        } catch (e) {
-            document.getElementById('status').innerText = "STATUS: LOAD FAILED - " + e.message;
-        }
-    </script>
-</body>
-</html>
+        <iframe src="www.tradingview-widget.com/embed-widget/advanced-chart/?symbol=NYMEX%3ACL1!&interval=60&timezone=Etc%2FUTC&theme=dark&style=1&locale=en&enable_publishing=false&allow_symbol_change=true&calendar=false&support_host=https%3A%2F%2Fwww.tradingview.com" allowfullscreen></iframe>
+
+    </body>
+    </html>
+    4:59 AM
+    4:59 AM
+
