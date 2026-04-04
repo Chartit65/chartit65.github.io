@@ -30,32 +30,45 @@
   </div>
 </div>
 
+<div id="install-container" style="text-align: center; margin: 20px 0; padding: 20px; border: 2px solid #28a745; border-radius: 10px; background: #111; font-family: sans-serif;">
+  <h2 id="status-header" style="color: #28a745; margin-bottom: 10px;">✓ SYSTEM SECURE</h2>
+  <p id="status-text" style="color: #ccc; font-size: 16px; margin-bottom: 20px;">Safe link. No files will be downloaded to your computer.</p>
+  <button id="installApp" style="padding: 20px; background: #28a745; color: white; font-size: 20px; border-radius: 10px; cursor: pointer; width: 100%; border: none; font-weight: bold; text-transform: uppercase;">
+    Add App Shortcut
+  </button>
+  <div id="desktop-instructions" style="display: none; text-align: left; margin-top: 20px; padding: 15px; background: #1a1a1a; border: 1px solid #444; border-radius: 8px;">
+    <p style="color: #fff; font-weight: bold; font-size: 18px; margin-top: 0;">How to add this shortcut safely:</p>
+    <div style="background: #222; padding: 10px; border-radius: 8px; border: 2px solid #007bff; margin-bottom: 15px; text-align: center;">
+      <p style="color: #fff; font-size: 16px; margin-top: 0; margin-bottom: 10px; text-align: left;"><strong>Step 1: Look at your top right corner:</strong></p>
+      <img src="i.imgur.com/vHqL3lO.png" alt="Firefox Menu Instruction" style="width:100%; max-width:450px; height:auto; border-radius: 5px; display: block; margin: 0 auto;">
+    </div>
+    <div style="background: #222; padding: 10px; border-radius: 8px; border: 1px solid #444;">
+      <p style="color: #fff; font-size: 16px; margin: 0;"><strong>Step 2: Click those 3 lines and select "Install" or "Add to Home Screen".</strong></p>
+    </div>
+    <p style="color: #28a745; font-weight: bold; margin-top: 15px; margin-bottom: 0;">✓ No installation required. This is just a safe shortcut for your desktop.</p>
+  </div>
+</div>
 <script>
   let deferredPrompt;
   const installBtn = document.getElementById('installApp');
   const instructions = document.getElementById('desktop-instructions');
   const statusHeader = document.getElementById('status-header');
   const statusText = document.getElementById('status-text');
-
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
   });
-
   installBtn.addEventListener('click', async () => {
     if (deferredPrompt) {
-      // MOBILE USERS: This triggers the official phone prompt.
       deferredPrompt.prompt();
       await deferredPrompt.userChoice;
       deferredPrompt = null;
     } else {
-      // DESKTOP/ILLITERATE USERS: ZERO POPUPS.
-      // We change the page content instead of showing a scary box.
-      installBtn.style.display = 'none'; // Hide the button so they don't click it again
+      installBtn.style.display = 'none';
       statusHeader.innerText = "INSTRUCTIONS BELOW";
       statusHeader.style.color = "#007bff";
-      statusText.innerText = "Your system is 100% safe. Follow the steps below.";
-      instructions.style.display = 'block'; // Show the safe text box
+      statusText.innerText = "Follow the 2-step visual guide below.";
+      instructions.style.display = 'block';
     }
   });
 </script>
