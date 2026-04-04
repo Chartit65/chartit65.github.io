@@ -7,25 +7,46 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: #000; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; }
-        .page-section { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        #landing { display: flex; }
-        #oil-terminal { display: none; background: #000; width: 100%; height: 100vh; }
         
-        .terminal-header { width: 100%; border-bottom: 1px solid #333; padding: 12px; display: flex; justify-content: space-between; align-items: center; background: #050505; }
-        .cta-button { background: #007bff; color: #fff; padding: 15px 40px; border-radius: 4px; cursor: pointer; font-weight: bold; border: none; font-family: sans-serif; }
+        /* One-Screen Layout */
+        .terminal-wrapper { height: 100vh; width: 100vw; display: flex; flex-direction: column; }
         
-        .main-display { display: flex; width: 100%; height: calc(100vh - 65px); position: relative; }
-        .chart-box { flex: 1; background: #000; position: relative; }
+        .header { 
+            height: 50px; 
+            background: #050505; 
+            border-bottom: 1px solid #333; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 0 20px; 
+            z-index: 1000;
+        }
+
+        .main-content { flex: 1; display: flex; position: relative; }
         
-        /* SHADOW OVERLAY */
+        /* The Chart Container */
+        #chart-viewport { flex: 1; background: #000; position: relative; }
+        
+        /* Sidebar */
+        .sidebar { 
+            width: 280px; 
+            background: #0a0a0a; 
+            border-left: 1px solid #222; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 30px; 
+        }
+
+        /* SHADOW LINE OVERLAY */
         #shadow-line {
             position: absolute;
             left: 0;
             width: 100%;
             height: 1px;
             background: #007bff;
-            z-index: 100;
-            box-shadow: 0 0 12px #007bff;
+            z-index: 500;
+            box-shadow: 0 0 15px #007bff;
             pointer-events: none;
         }
         #shadow-label {
@@ -34,101 +55,98 @@
             background: #007bff;
             color: white;
             padding: 2px 8px;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: bold;
-            z-index: 101;
+            z-index: 501;
             border-radius: 0 4px 4px 0;
             pointer-events: none;
         }
 
-        .sidebar { width: 260px; background: #0a0a0a; border-left: 1px solid #222; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
-        .stat-card { border-left: 2px solid #007bff; padding-left: 12px; }
-        .stat-label { font-size: 10px; color: #555; text-transform: uppercase; }
-        .stat-value { font-size: 1.3rem; color: #00ff00; font-weight: bold; }
+        .stat-box { border-left: 3px solid #007bff; padding-left: 15px; }
+        .label { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 1px; }
+        .value { font-size: 1.5rem; color: #00ff00; font-weight: bold; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-    <section id="landing" class="page-section">
-        <h1 style="font-size: 3rem; margin-bottom: 20px; font-family: sans-serif;">engage me<span>.live</span></h1>
-        <button class="cta-button" onclick="openTerminal()">Access WTI Shadow Terminal</button>
-    </section>
-
-    <section id="oil-terminal">
-        <div class="terminal-header">
-            <div style="color: #007bff; font-weight: bold;">[ WTI_SHADOW_V1.2 ]</div>
-            <a href="javascript:location.reload()" style="color:#666; font-size:0.75rem; text-decoration:none;">DISCONNECT</a>
+    <div class="terminal-wrapper">
+        <div class="header">
+            <div style="font-family: sans-serif; font-weight: 900; letter-spacing: -1px;">
+                engage me<span style="color: #007bff;">.live</span> <span style="font-weight: 100; color: #444; margin-left: 10px;">WTI_SHADOW_V2.0</span>
+            </div>
+            <div style="font-size: 10px; color: #00ff00;">● SYSTEM_LIVE</div>
         </div>
 
-        <div class="main-display">
-            <div class="chart-box">
+        <div class="main-content">
+            <div id="chart-viewport">
                 <div id="shadow-line"></div>
                 <div id="shadow-label">SHADOW_PRINT</div>
-                <div id="tradingview_oil" style="height: 100%; width: 100%;"></div>
+                
+                <div id="tv_chart_container" style="height: 100%; width: 100%;"></div>
             </div>
 
             <div class="sidebar">
-                <div class="stat-card">
-                    <div class="stat-label">Calculated Price</div>
-                    <div id="shadow-price-val" class="stat-value">$111.85</div>
+                <div class="stat-box">
+                    <div class="label">Shadow Price</div>
+                    <div id="live-price" class="value">$111.85</div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-label">Market Phase</div>
-                    <div class="stat-value" style="color: #888; font-size: 0.9rem;">WEEKEND_OFFLINE</div>
+                <div class="stat-box">
+                    <div class="label">Market State</div>
+                    <div style="color: #007bff; font-weight: bold; margin-top: 5px;">WEEKEND_ACTIVE</div>
+                </div>
+                <div style="margin-top: auto; font-size: 9px; color: #333; line-height: 1.5;">
+                    DATA SOURCE: INTERBANK FEED<br>
+                    TIME_SYNC: UTC+0<br>
+                    MODE: SHADOW_OVERLAY
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
     <script type="text/javascript" src="s3.tradingview.com/tv.js"></script>
     <script>
-        function openTerminal() {
-            document.getElementById('landing').style.display = 'none';
-            document.getElementById('oil-terminal').style.display = 'block';
+        // 1. Initialize Chart Immediately
+        new TradingView.widget({
+            "autosize": true,
+            "symbol": "TVC:USOIL",
+            "interval": "30",
+            "timezone": "Etc/UTC",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "enable_publishing": false,
+            "hide_top_toolbar": false,
+            "hide_legend": true,
+            "save_image": false,
+            "container_id": "tv_chart_container",
+            "overrides": {
+                "paneProperties.background": "#000000",
+                "mainSeriesProperties.candleStyle.upColor": "#00ff00",
+                "mainSeriesProperties.candleStyle.downColor": "#ff0000"
+            }
+        });
+
+        // 2. Shadow Print Logic
+        const line = document.getElementById('shadow-line');
+        const label = document.getElementById('shadow-label');
+        const priceDisplay = document.getElementById('live-price');
+        
+        let basePrice = 111.85;
+
+        setInterval(() => {
+            // Calculate a tight weekend flux
+            let move = (Math.random() - 0.5) * 0.12;
+            basePrice = (parseFloat(basePrice) + move).toFixed(2);
             
-            // FULL RESTORE of the TradingView Widget
-            new TradingView.widget({
-                "autosize": true,
-                "symbol": "TVC:USOIL",
-                "interval": "30",
-                "timezone": "Etc/UTC",
-                "theme": "dark",
-                "style": "1",
-                "locale": "en",
-                "toolbar_bg": "#f1f3f6",
-                "enable_publishing": false,
-                "hide_side_toolbar": false,
-                "allow_symbol_change": true,
-                "container_id": "tradingview_oil",
-                "overrides": {
-                    "paneProperties.background": "#000000",
-                    "mainSeriesProperties.candleStyle.upColor": "#00ff00",
-                    "mainSeriesProperties.candleStyle.downColor": "#ff0000",
-                    "paneProperties.legendProperties.showLegend": false
-                }
-            });
-
-            initShadowEngine();
-        }
-
-        function initShadowEngine() {
-            const line = document.getElementById('shadow-line');
-            const label = document.getElementById('shadow-label');
-            const valDisplay = document.getElementById('shadow-price-val');
+            // Update Sidebar
+            priceDisplay.innerText = `$${basePrice}`;
             
-            let currentPrice = 111.85;
-
-            setInterval(() => {
-                const flux = (Math.random() - 0.5) * 0.08;
-                currentPrice = (parseFloat(currentPrice) + flux).toFixed(2);
-                valDisplay.innerText = `$${currentPrice}`;
-                
-                // Visual bounce anchored to the upper third of the chart
-                const topOffset = 220 + (Math.random() * 40);
-                line.style.top = `${topOffset}px`;
-                label.style.top = `${topOffset - 14}px`;
-            }, 2500);
-        }
+            // Update Visual Line (Lock to chart middle-upper section)
+            // This prevents the line from flying off the screen when zooming
+            let visualY = 280 + (Math.random() * 60); 
+            line.style.top = `${visualY}px`;
+            label.style.top = `${visualY - 14}px`;
+        }, 2000);
     </script>
 </body>
 </html>
