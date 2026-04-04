@@ -3,133 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>engagement.live | Functional Tools</title>
+    <title>engagement.live | WTI Shadow Terminal</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: 'Segoe UI', sans-serif;
-            overflow-x: hidden;
-        }
-
-        /* LANDING & EXCHANGE SECTION */
-        .page-section {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
-        }
-
-        #landing { background: #000; }
-        #the-exchange { background: #0a0a0a; display: none; } /* Hidden until clicked */
-        #oil-terminal { background: #050505; display: none; padding: 40px; }
-
-        h1 { font-size: clamp(2.5rem, 8vw, 4rem); margin-bottom: 10px; }
-        h1 span { color: #007bff; }
-        .mission { font-size: 1.4rem; color: #bbb; margin-bottom: 40px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #000; color: #fff; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
+        .page-section { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        #landing { display: flex; }
+        #oil-terminal { display: none; padding: 10px; background: #050505; }
         
-        .cta-button {
-            background-color: #007bff;
+        /* Branding */
+        h1 { font-size: 3rem; margin-bottom: 20px; font-family: sans-serif; }
+        h1 span { color: #007bff; }
+        .cta-button { background: #007bff; color: #fff; padding: 15px 40px; border-radius: 4px; cursor: pointer; font-weight: bold; font-family: sans-serif; }
+
+        /* Terminal UI */
+        .terminal-header { width: 100%; border-bottom: 1px solid #333; padding: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .back-btn { color: #666; cursor: pointer; font-size: 0.8rem; }
+        
+        .main-display { display: flex; width: 100%; height: calc(100vh - 80px); gap: 10px; padding: 10px; }
+        
+        /* The Shadow Print Margin Label */
+        #shadow-margin-label {
+            position: absolute;
+            left: 0;
+            background: rgba(0, 123, 255, 0.9);
             color: white;
-            padding: 18px 50px;
-            font-size: 1.1rem;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: 600;
-            cursor: pointer;
-            border: 1px solid #007bff;
-            transition: 0.3s;
+            padding: 4px 8px;
+            font-size: 10px;
+            z-index: 100;
+            border-radius: 0 4px 4px 0;
+            font-weight: bold;
+            pointer-events: none;
         }
-        .cta-button:hover { background: transparent; color: #007bff; }
 
-        /* TOOL CARDS */
-        .tool-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
+        .chart-box { flex: 3; background: #111; position: relative; border: 1px solid #222; }
+        .stats-sidebar { flex: 1; background: #0a0a0a; border: 1px solid #222; padding: 15px; text-align: left; }
+        
+        .shadow-line {
+            position: absolute;
             width: 100%;
-            max-width: 1100px;
-            margin-top: 40px;
+            height: 1px;
+            background: #007bff; /* The Razor-Thin Blue Line */
+            z-index: 99;
+            box-shadow: 0 0 5px #007bff;
         }
-        .tool-card {
-            background: #111;
-            border: 1px solid #333;
-            padding: 30px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-            text-align: left;
-        }
-        .tool-card:hover { border-color: #007bff; background: #161616; }
-        .tool-card h3 { color: #007bff; margin-bottom: 15px; }
-        .status { color: #00ff00; font-size: 0.7rem; font-weight: bold; margin-top: 15px; display: block; }
 
-        /* TERMINAL STYLE */
-        .terminal-header { width: 100%; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 30px; text-align: left; }
-        .terminal-content { font-family: monospace; color: #00ff00; text-align: left; width: 100%; max-width: 1000px; }
-        .back-btn { color: #888; cursor: pointer; text-decoration: underline; margin-bottom: 10px; display: inline-block; }
+        .stat-row { margin-bottom: 15px; border-left: 2px solid #007bff; padding-left: 10px; }
+        .stat-label { font-size: 0.7rem; color: #555; text-transform: uppercase; }
+        .stat-value { font-size: 1.2rem; color: #00ff00; }
     </style>
 </head>
 <body>
 
     <section id="landing" class="page-section">
         <h1>engage me<span>.live</span></h1>
-        <p class="mission">Functional Tools for the Real World</p>
-        <div class="cta-button" onclick="showSection('the-exchange')">Access Tools</div>
+        <div class="cta-button" onclick="openTerminal()">Access WTI Shadow Terminal</div>
     </section>
 
-    <section id="the-exchange" class="page-section">
-        <h1 style="font-size: 2.5rem; color: #007bff;">The Exchange</h1>
-        <div class="tool-grid">
-            <div class="tool-card" onclick="showSection('oil-terminal')">
-                <h3>WTI Shadow Terminal</h3>
-                <p>Advanced real-time tracking for crude oil volatility. Optimized for WTI/USO pairs.</p>
-                <span class="status">● SYSTEM LIVE</span>
-            </div>
-            <div class="tool-card" style="opacity: 0.3; cursor: default;">
-                <h3>Next Utility</h3>
-                <p>Pending system integration.</p>
-                <span class="status" style="color: #666;">○ OFFLINE</span>
-            </div>
-        </div>
-        <p class="back-btn" style="margin-top: 40px;" onclick="showSection('landing')">Back to Home</p>
-    </section>
-
-    <section id="oil-terminal" class="page-section">
+    <section id="oil-terminal">
         <div class="terminal-header">
-            <span class="back-btn" onclick="showSection('the-exchange')">< Return to Exchange</span>
-            <h2 style="color: #fff; margin-top: 10px;">WTI SHADOW TERMINAL v1.0</h2>
+            <div><span style="color:#007bff">WTI</span> SHADOW_v1.0</div>
+            <div class="back-btn" onclick="location.reload()">[ EXIT_SYSTEM ]</div>
         </div>
-        <div class="terminal-content">
-            <p>> INITIALIZING MARKET OVERLAY...</p>
-            <p>> CONNECTING TO WTI/USO DATA STREAMS...</p>
-            <p style="margin-top: 20px; color: #fff; font-size: 1.2rem;">[ Real-Time Data Panel Placeholder ]</p>
-            <div style="border: 1px solid #333; height: 300px; margin-top: 20px; display: flex; align-items: center; justify-content: center; color: #444;">
-                (TradingView or Data Script will render here)
+
+        <div class="main-display">
+            <div class="chart-box" id="chart-container">
+                <div id="shadow-margin-label">SHADOW<br>PRINT</div>
+                <div id="shadow-price-line" class="shadow-line"></div>
+                
+                <div id="tradingview_main" style="height:100%; width:100%"></div>
+            </div>
+
+            <div class="stats-sidebar">
+                <div class="stat-row">
+                    <div class="stat-label">Shadow Print Price</div>
+                    <div id="display-shadow-price" class="stat-value">CALCULATING...</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label">Variance (Grey vs CME)</div>
+                    <div id="display-variance" class="stat-value" style="color: #007bff;">+0.00%</div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label">Source Priority</div>
+                    <div class="stat-value" style="font-size: 0.8rem; color: #888;">INTERBANK / DARK POOL</div>
+                </div>
             </div>
         </div>
     </section>
 
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script>
-        // Simple logic to switch between "pages" without reloading or 404s
-        function showSection(sectionId) {
-            // Hide all sections
+        function openTerminal() {
             document.getElementById('landing').style.display = 'none';
-            document.getElementById('the-exchange').style.display = 'none';
-            document.getElementById('oil-terminal').style.display = 'none';
-            
-            // Show the one we want
-            const target = document.getElementById(sectionId);
-            target.style.display = (sectionId === 'oil-terminal') ? 'block' : 'flex';
-            
-            // Scroll to top
-            window.scrollTo(0, 0);
+            document.getElementById('oil-terminal').style.display = 'block';
+            loadChart();
+            startShadowEngine();
+        }
+
+        function loadChart() {
+            new TradingView.widget({
+                "autosize": true,
+                "symbol": "TVC:USOIL",
+                "interval": "1",
+                "timezone": "Etc/UTC",
+                "theme": "dark",
+                "style": "1",
+                "locale": "en",
+                "container_id": "tradingview_main"
+            });
+        }
+
+        function startShadowEngine() {
+            // Shadow Print Logic: Simulating Interbank/Gray Market Feed
+            setInterval(() => {
+                const basePrice = 85.40; // This would normally be your API hook
+                const shadowFlux = (Math.random() * 0.50).toFixed(2);
+                const shadowPrice = (parseFloat(basePrice) + parseFloat(shadowFlux)).toFixed(2);
+                
+                // Update UI elements
+                document.getElementById('display-shadow-price').innerText = `$${shadowPrice}`;
+                
+                // Position the Blue Shadow Line & Label (Visual Simulation)
+                const line = document.getElementById('shadow-price-line');
+                const label = document.getElementById('shadow-margin-label');
+                const topPos = 150 + (Math.random() * 100); // Dynamic placement for demonstration
+                
+                line.style.top = `${topPos}px`;
+                label.style.top = `${topPos - 15}px`;
+            }, 3000);
         }
     </script>
-
 </body>
 </html>
