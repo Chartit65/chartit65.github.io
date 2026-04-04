@@ -10,27 +10,32 @@
     <div style="margin-top: 30px; padding: 20px; border: 2px solid #00ff00; display: inline-block;">
         <h3>SYSTEM STATUS: ONLINE</h3>
     </div>
-<button id="installApp" style="display:none; padding: 20px; background: #28a745; color: white; font-size: 22px; border-radius: 10px; cursor: pointer; width: 100%; margin: 20px 0; border: none; font-weight: bold;">
-  INSTALL OIL TRACKER APP
-</button>
+<div id="install-container" style="text-align: center; margin: 20px 0; padding: 20px; border: 2px solid #28a745; border-radius: 10px;">
+  <button id="installApp" style="padding: 20px; background: #28a745; color: white; font-size: 22px; border-radius: 10px; cursor: pointer; width: 100%; border: none; font-weight: bold;">
+    INSTALL OIL TRACKER APP
+  </button>
+  
+  <div id="desktop-note" style="display: block; color: #ccc; margin-top: 15px; font-size: 14px; line-height: 1.5;">
+    <p><strong>Desktop/iPhone Users:</strong> If the button doesn't trigger, click your <strong>Browser Menu</strong> (3 dots or Share icon) and select <strong>"Add to Home Screen"</strong> or <strong>"Install App"</strong>.</p>
+  </div>
+</div>
 
 <script>
   let deferredPrompt;
   const installBtn = document.getElementById('installApp');
+
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    installBtn.style.display = 'block';
   });
+
   installBtn.addEventListener('click', async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       deferredPrompt = null;
+    } else {
+      alert("To install: Click your Browser Menu (top right or bottom) and select 'Add to Home Screen' or 'Install'.");
     }
   });
 </script>
-
-</body>
-
-</html>
