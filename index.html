@@ -10,19 +10,32 @@
     <div style="margin-top: 30px; padding: 20px; border: 2px solid #00ff00; display: inline-block;">
         <h3>SYSTEM STATUS: ONLINE</h3>
     </div>
-<div id="install-container" style="text-align: center; margin: 20px 0; padding: 20px; border: 2px solid #28a745; border-radius: 10px;">
-  <button id="installApp" style="padding: 20px; background: #28a745; color: white; font-size: 22px; border-radius: 10px; cursor: pointer; width: 100%; border: none; font-weight: bold;">
-    INSTALL OIL TRACKER APP
+<div id="install-container" style="text-align: center; margin: 20px 0; padding: 20px; border: 2px solid #28a745; border-radius: 10px; background: #111;">
+  
+  <h2 id="status-header" style="color: #28a745; margin-bottom: 10px;">✓ SYSTEM SECURE</h2>
+  <p id="status-text" style="color: #ccc; font-size: 16px; margin-bottom: 20px;">Safe link. No files will be downloaded to your computer.</p>
+
+  <button id="installApp" style="padding: 20px; background: #28a745; color: white; font-size: 20px; border-radius: 10px; cursor: pointer; width: 100%; border: none; font-weight: bold; text-transform: uppercase;">
+    Add App Shortcut
   </button>
   
-  <div id="desktop-note" style="display: block; color: #ccc; margin-top: 15px; font-size: 14px; line-height: 1.5;">
-    <p><strong>Desktop/iPhone Users:</strong> If the button doesn't trigger, click your <strong>Browser Menu</strong> (3 dots or Share icon) and select <strong>"Add to Home Screen"</strong> or <strong>"Install App"</strong>.</p>
+  <div id="desktop-instructions" style="display: none; text-align: left; margin-top: 20px; padding: 20px; background: #1a1a1a; border: 1px solid #444; border-radius: 8px;">
+    <p style="color: #fff; font-weight: bold; font-size: 18px; margin-top: 0;">How to add this shortcut:</p>
+    <p style="color: #ccc; line-height: 1.5;">Since you are on a computer, follow these 2 steps to put this on your main screen:</p>
+    <ol style="color: #fff; line-height: 1.8; font-size: 16px;">
+      <li>Look at the <strong>Top Right</strong> of your browser window.</li>
+      <li>Click the <strong>Menu</strong> (3 dots or 3 lines ☰) and select <strong>"Install"</strong> or <strong>"Add to Home Screen"</strong>.</li>
+    </ol>
+    <p style="color: #28a745; font-weight: bold; margin-bottom: 0;">✓ No installation required. This is just a safe shortcut.</p>
   </div>
 </div>
 
 <script>
   let deferredPrompt;
   const installBtn = document.getElementById('installApp');
+  const instructions = document.getElementById('desktop-instructions');
+  const statusHeader = document.getElementById('status-header');
+  const statusText = document.getElementById('status-text');
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
@@ -31,11 +44,18 @@
 
   installBtn.addEventListener('click', async () => {
     if (deferredPrompt) {
+      // MOBILE USERS: This triggers the official phone prompt.
       deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
+      await deferredPrompt.userChoice;
       deferredPrompt = null;
     } else {
-      alert("To install: Click your Browser Menu (top right or bottom) and select 'Add to Home Screen' or 'Install'.");
+      // DESKTOP/ILLITERATE USERS: ZERO POPUPS.
+      // We change the page content instead of showing a scary box.
+      installBtn.style.display = 'none'; // Hide the button so they don't click it again
+      statusHeader.innerText = "INSTRUCTIONS BELOW";
+      statusHeader.style.color = "#007bff";
+      statusText.innerText = "Your system is 100% safe. Follow the steps below.";
+      instructions.style.display = 'block'; // Show the safe text box
     }
   });
 </script>
