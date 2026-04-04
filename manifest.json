@@ -1,9 +1,0 @@
-{
-  "name": "EngageMe Live",
-  "short_name": "EngageMe",
-  "start_url": "/engageme/",
-  "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#28a745",
-  "icons": [{ "src": "https://via.placeholder.com/192/28a745/ffffff?text=E", "sizes": "192x192", "type": "image/png" }]
-}
