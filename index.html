@@ -3,65 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EngageMe Live</title>
-    <link rel="manifest" href="manifest.json">
+    <title>engagement.live | Real-Time Networking</title>
     <style>
-        body { 
-            background-color: #000000; 
-            color: #ffffff; 
-            font-family: Arial, sans-serif; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            height: 100vh; 
-            margin: 0; 
+        /* Forces the page to occupy the full screen and centers content */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .btn { 
-            background-color: #28a745; 
-            color: white; 
-            padding: 15px 30px; 
-            font-size: 1.2rem; 
-            border: none; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            display: none; /* Button stays hidden until browser says it is 100% ready */
+
+        body {
+            background-color: #000000; /* Solid black background */
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .content-wrapper {
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        h1 span {
+            color: #007bff; /* Highlights the .live part */
+        }
+
+        .mission {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            color: #cccccc;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 18px 45px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 10px 20px rgba(0, 123, 255, 0.3);
+        }
+
+        .cta-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .cta-button:active {
+            transform: translateY(0);
         }
     </style>
 </head>
 <body>
 
-    <h1>EngageMe Live</h1>
-    <p>Real-time networking for the world.</p>
+    <div class="content-wrapper">
+        <h1>engage me<span>.live</span></h1>
+        <p class="mission">Real-time networking for the world.</p>
+        <a href="#" class="cta-button">Enter Network</a>
+    </div>
 
-    <button id="installBtn" class="btn">Add App Shortcut</button>
-
-    <script>
-        let deferredPrompt;
-        const installBtn = document.getElementById('installBtn');
-
-        // Only shows the button when the browser is ready to show the official "Install" window
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBtn.style.display = 'block'; 
-        });
-
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                deferredPrompt = null;
-                if (outcome === 'accepted') {
-                    installBtn.style.display = 'none';
-                }
-            }
-        });
-
-        // This registers the "Engine" (sw.js)
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
-        }
-    </script>
 </body>
 </html>
