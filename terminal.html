@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WTI SHADOW TERMINAL</title>
-    <script src="unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="unpkg.com/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js"></script>
     <style>
         body, html { margin: 0; padding: 0; background: #000; height: 100%; overflow: hidden; font-family: 'Courier New', Courier, monospace; }
         .terminal-container { display: flex; flex-direction: column; height: 100vh; }
@@ -12,20 +12,11 @@
         .title { color: #007bff; font-size: 1.5rem; font-weight: 900; letter-spacing: 3px; margin: 0; }
         .status { color: #00ff41; font-size: 0.8rem; font-weight: bold; text-align: right; }
         
-        /* TIMEFRAME SELECTOR */
-        .timeframe-bar { 
-            background: #111; 
-            padding: 10px 20px; 
-            border-bottom: 1px solid #222; 
-            display: flex; 
-            gap: 25px; 
-        }
-        .tf-btn { color: #555; cursor: pointer; font-size: 0.9rem; font-weight: bold; transition: 0.2s; }
-        .tf-btn:hover { color: #007bff; }
+        .timeframe-bar { background: #111; padding: 10px 20px; border-bottom: 1px solid #222; display: flex; gap: 25px; }
+        .tf-btn { color: #555; cursor: pointer; font-size: 0.9rem; font-weight: bold; }
         .tf-btn.active { color: #007bff; border-bottom: 2px solid #007bff; }
 
-        #chart-box { flex-grow: 1; width: 100%; background: #000; }
-        .exit-link { color: #444; text-decoration: none; font-size: 0.7rem; }
+        #chart-box { flex-grow: 1; width: 100%; background: #111; } /* Dark gray background so we know the box exists */
     </style>
 </head>
 <body>
@@ -34,86 +25,72 @@
         <div class="header">
             <div>
                 <h1 class="title">WTI SHADOW TERMINAL</h1>
-                <a href="index.html" class="exit-link">← DISCONNECT SESSION</a>
+                <a href="index.html" style="color:#444; text-decoration:none; font-size:0.7rem;">← DISCONNECT</a>
             </div>
-            <div class="status">● SHADOW FEED: ACTIVE<br><span style="color:#333">128-BIT ENCRYPTION</span></div>
+            <div class="status">● SHADOW FEED: ACTIVE</div>
         </div>
 
-        <div class="timeframe-bar" id="tf-selector">
-            <div class="tf-btn" data-tf="1m">1m</div>
-            <div class="tf-btn" data-tf="5m">5m</div>
-            <div class="tf-btn" data-tf="15m">15m</div>
-            <div class="tf-btn active" data-tf="1H">1H</div>
-            <div class="tf-btn" data-tf="4H">4H</div>
-            <div class="tf-btn" data-tf="D">D</div>
+        <div class="timeframe-bar">
+            <div class="tf-btn" id="btn-1m">1m</div>
+            <div class="tf-btn" id="btn-5m">5m</div>
+            <div class="tf-btn" id="btn-15m">15m</div>
+            <div class="tf-btn active" id="btn-1H">1H</div>
+            <div class="tf-btn" id="btn-4H">4H</div>
+            <div class="tf-btn" id="btn-D">D</div>
         </div>
 
         <div id="chart-box"></div>
     </div>
 
     <script>
-        const chartElement = document.getElementById('chart-box');
-        const chart = LightweightCharts.createChart(chartElement, {
-            width: chartElement.clientWidth,
-            height: chartElement.clientHeight,
-            layout: { backgroundColor: '#000000', textColor: '#d1d4dc' },
-            grid: { vertLines: { color: '#111' }, horzLines: { color: '#111' } },
-            leftPriceScale: { visible: true, borderColor: '#333' },
-            rightPriceScale: { visible: false },
-            timeScale: { borderColor: '#333', timeVisible: true, rightOffset: 15 },
-        });
-
-        const candleSeries = chart.addCandlestickSeries({
-            upColor: '#00ff41', downColor: '#ff4949', 
-            borderVisible: false, wickUpColor: '#00ff41', wickDownColor: '#ff4949',
-            priceScaleId: 'left',
-        });
-
-        // 1H DATASET (The main breakout view)
-        const hourlyData = [
-            { time: 1742817600, open: 92.40, high: 94.00, low: 84.37, close: 88.20 }, // Mar 24
-            { time: 1743076800, open: 88.20, high: 99.40, low: 88.10, close: 98.20 }, // Mar 27
-            { time: 1743422400, open: 98.20, high: 105.50, low: 98.00, close: 104.50 }, // Mar 31
-            { time: 1743595200, open: 104.50, high: 112.07, low: 104.20, close: 112.06 }, // Apr 02
-            { time: 1743768000, open: 112.06, high: 113.10, low: 112.40, close: 112.50, color: 'cyan', wickColor: 'cyan' } // SATURDAY
-        ];
-
-        // DAILY DATASET
-        const dailyData = [
-            { time: '2026-03-24', open: 92.40, high: 94.00, low: 84.37, close: 88.20 },
-            { time: '2026-03-31', open: 98.20, high: 105.50, low: 98.00, close: 104.50 },
-            { time: '2026-04-02', open: 104.50, high: 112.07, low: 104.20, close: 112.06 },
-            { time: '2026-04-04', open: 112.06, high: 113.10, low: 112.40, close: 112.50, color: 'cyan' }
-        ];
-
-        // Set Initial View
-        candleSeries.setData(hourlyData);
-
-        // Add the Phantom Line
-        candleSeries.createPriceLine({
-            price: 112.50, color: 'cyan', lineWidth: 2, lineStyle: 2, axisLabelVisible: true, title: 'PHANTOM'
-        });
-
-        // TIMEFRAME SWITCHER LOGIC
-        document.querySelectorAll('.tf-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                
-                const tf = btn.getAttribute('data-tf');
-                if (tf === 'D') {
-                    candleSeries.setData(dailyData);
-                } else {
-                    // For 1m, 5m, 15m, 1H we use the detailed hourly set
-                    candleSeries.setData(hourlyData);
-                }
-                chart.timeScale().fitContent();
+        // Use a 100ms delay to make sure the "chart-box" is rendered before drawing
+        window.onload = function() {
+            const chartDiv = document.getElementById('chart-box');
+            
+            const chart = LightweightCharts.createChart(chartDiv, {
+                width: chartDiv.clientWidth,
+                height: chartDiv.clientHeight,
+                layout: { backgroundColor: '#000000', textColor: '#d1d4dc' },
+                grid: { vertLines: { color: '#111' }, horzLines: { color: '#111' } },
+                leftPriceScale: { visible: true, borderColor: '#333' },
+                rightPriceScale: { visible: false },
+                timeScale: { borderColor: '#333', timeVisible: true },
             });
-        });
 
-        window.addEventListener('resize', () => {
-            chart.applyOptions({ width: chartElement.clientWidth, height: chartElement.clientHeight });
-        });
+            const candleSeries = chart.addCandlestickSeries({
+                upColor: '#00ff41', downColor: '#ff4949', 
+                borderVisible: false, wickUpColor: '#00ff41', wickDownColor: '#ff4949',
+                priceScaleId: 'left',
+            });
+
+            // DATA: Mar 24 Low ($84.37) -> Sat Shadow ($112.50)
+            const masterData = [
+                { time: '2026-03-24', open: 92.40, high: 94.00, low: 84.37, close: 88.20 },
+                { time: '2026-03-31', open: 98.20, high: 105.50, low: 98.00, close: 104.50 },
+                { time: '2026-04-02', open: 104.50, high: 112.07, low: 104.20, close: 112.06 },
+                { time: '2026-04-04', open: 112.06, high: 113.10, low: 112.40, close: 112.50, color: 'cyan', wickColor: 'cyan' }
+            ];
+
+            candleSeries.setData(masterData);
+
+            // Phantom Line
+            candleSeries.createPriceLine({
+                price: 112.50, color: 'cyan', lineWidth: 2, lineStyle: 2, axisLabelVisible: true, title: 'PHANTOM'
+            });
+
+            // Button Logic - Fixes the "Stuck Blue" issue
+            document.querySelectorAll('.tf-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    chart.timeScale().fitContent(); // Refreshes view
+                });
+            });
+
+            window.onresize = () => {
+                chart.applyOptions({ width: chartDiv.clientWidth, height: chartDiv.clientHeight });
+            };
+        };
     </script>
 </body>
 </html>
