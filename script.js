@@ -1,44 +1,47 @@
-const ctx = document.getElementById('oilChart').getContext('2d');
-
-const oilChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        // Dates across the bottom
-        labels: ['Thu Close', 'Fri', 'Sat', 'Sun (Today)'],
-        datasets: [{
-            label: 'Market Close (Thursday)',
-            data: [82.50, null, null, null], // Only Thursday has a print
-            borderColor: '#00FF00',
-            borderWidth: 2,
-            pointRadius: 5
-        },
-        {
-            label: 'Phantom Oil Prints',
-            data: [82.50, 82.10, 81.80, 82.35], // These are your "Phantom" prints
-            borderColor: '#f0f', // Pink for Phantom
-            borderDash: [5, 5],
-            borderWidth: 2,
-            pointBackgroundColor: '#f0f'
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: {
-                beginAtZero: false,
-                grid: { color: '#333' },
-                ticks: { color: '#00FF00' }, // Price on the vertical
-                title: { display: true, text: 'Price (USD)', color: '#00FF00' }
-            },
-            x: {
-                grid: { color: '#333' },
-                ticks: { color: '#00FF00' }, // Dates on the bottom
-                title: { display: true, text: 'Timeline', color: '#00FF00' }
-            }
-        },
-        plugins: {
-            legend: { labels: { color: '#00FF00' } }
-        }
+function startChart() {
+    if (typeof Chart === 'undefined') {
+        console.log("Waiting for Chart.js...");
+        setTimeout(startChart, 500);
+        return;
     }
-});
+
+    const ctx = document.getElementById('oilChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Thursday Close', 'Friday (PHANTOM)', 'Saturday (PHANTOM)', 'Sunday (TODAY)'],
+            datasets: [{
+                label: 'PHANTOM OIL PRICE',
+                data: [82.50, 81.90, 82.15, 82.40], // Thursday, Fri, Sat, Sun
+                borderColor: '#00FF00',
+                backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                borderWidth: 3,
+                pointRadius: 6,
+                pointBackgroundColor: '#f0f', // Phantom points are pink
+                tension: 0.3 // Makes the line slightly curved
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    grid: { color: '#222' },
+                    ticks: { color: '#00FF00', font: { size: 14 } },
+                    title: { display: true, text: 'PRICE (USD)', color: '#00FF00' }
+                },
+                x: {
+                    grid: { color: '#222' },
+                    ticks: { color: '#00FF00', font: { size: 12 } }
+                }
+            },
+            plugins: {
+                legend: { labels: { color: '#00FF00', font: { size: 14 } } }
+            }
+        }
+    });
+}
+
+// Kick off the safety check
+startChart();
