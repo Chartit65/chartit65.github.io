@@ -4,126 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WTI SHADOW TERMINAL</title>
-    <script src="unpkg.com/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js"></script>
     <style>
-        body, html { 
-            margin: 0; 
-            padding: 0; 
-            background-color: #000; 
-            color: #007bff; 
-            height: 100vh; 
-            width: 100vw;
-            overflow: hidden;
-            font-family: 'Courier New', Courier, monospace;
-        }
-
-        /* HEADER AREA */
-        .terminal-header {
-            height: 80px;
-            width: 100%;
-            background: #0a0a0a;
-            border-bottom: 2px solid #222;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            box-sizing: border-box;
-        }
-
-        .title { font-size: 1.8rem; font-weight: 900; letter-spacing: 4px; margin: 0; }
-        .online-status { color: #00ff41; font-weight: bold; text-align: right; }
-        .exit-link { color: #444; text-decoration: none; font-size: 0.8rem; display: block; }
-
-        /* THE CHART AREA - FORCED SIZE */
-        #chart-area { 
-            width: 100vw; 
-            height: calc(100vh - 80px); 
-            background: #111; /* Failsafe color so you can see the box */
-        }
+        body, html { margin: 0; padding: 0; background: #000; color: #007bff; height: 100%; overflow: hidden; font-family: 'Courier New', Courier, monospace; }
+        .terminal-header { height: 70px; background: #0a0a0a; border-bottom: 2px solid #222; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        .title { font-size: 1.6rem; font-weight: 900; letter-spacing: 3px; }
+        .status { color: #00ff41; font-weight: bold; font-size: 0.9rem; text-align: right; }
+        .exit { color: #444; text-decoration: none; font-size: 0.7rem; }
+        
+        /* THE CHART AREA */
+        .chart-container { width: 100vw; height: calc(100vh - 70px); position: relative; background: #000; }
+        svg { width: 100%; height: 100%; }
+        
+        .price-line { stroke: #222; stroke-width: 1; }
+        .phantom-line { stroke: cyan; stroke-width: 2; stroke-dasharray: 8,8; }
+        .phantom-text { fill: cyan; font-size: 18px; font-weight: bold; }
+        .candle-up { fill: #00ff41; }
+        .candle-down { fill: #ff4949; }
+        .wick { stroke: #666; stroke-width: 1; }
+        .axis-label { fill: #666; font-size: 12px; }
     </style>
 </head>
 <body>
 
     <div class="terminal-header">
         <div>
-            <h1 class="title">WTI SHADOW TERMINAL</h1>
-            <a href="index.html" class="exit-link">← TERMINATE SESSION</a>
+            <div class="title">WTI SHADOW TERMINAL</div>
+            <a href="index.html" class="exit">← EXIT SESSION</a>
         </div>
-        <div class="online-status">
-            <div>● SYSTEM ONLINE</div>
-            <div style="color: #555; font-size: 0.7rem; letter-spacing: 1px;">SHADOW DATA ACTIVE</div>
+        <div class="status">
+            <div>● SHADOW FEED ACTIVE</div>
+            <div style="color: #444; font-size: 0.7rem;">ENCRYPTED CONNECTION</div>
         </div>
     </div>
 
-    <div id="chart-area"></div>
+    <div class="chart-container">
+        <svg viewBox="0 0 1000 600" preserveAspectRatio="none">
+            <line x1="0" y1="100" x2="1000" y2="100" class="price-line" />
+            <line x1="0" y1="200" x2="1000" y2="200" class="price-line" />
+            <line x1="0" y1="300" x2="1000" y2="300" class="price-line" />
+            <line x1="0" y1="400" x2="1000" y2="400" class="price-line" />
+            <line x1="0" y1="500" x2="1000" y2="500" class="price-line" />
 
-    <script>
-        // Use a small delay to ensure the div is ready
-        setTimeout(() => {
-            const chartDiv = document.getElementById('chart-area');
+            <line x1="0" y1="120" x2="1000" y2="120" class="phantom-line" />
+            <text x="820" y="110" class="phantom-text">PHANTOM TARGET: $112.50</text>
+            <path d="M 850 80 L 860 100 L 870 80 Z" fill="cyan" /> <line x1="100" y1="250" x2="100" y2="350" class="wick" />
+            <rect x="90" y="270" width="20" height="60" class="candle-up" />
             
-            // Create the Chart
-            const chart = LightweightCharts.createChart(chartDiv, {
-                width: chartDiv.clientWidth,
-                height: chartDiv.clientHeight,
-                layout: {
-                    backgroundColor: '#000000',
-                    textColor: '#d1d4dc',
-                },
-                grid: {
-                    vertLines: { color: '#111' },
-                    horzLines: { color: '#111' },
-                },
-                timeScale: {
-                    borderColor: '#333',
-                    timeVisible: true,
-                },
-            });
+            <line x1="250" y1="380" x2="250" y2="580" class="wick" /> <rect x="240" y="400" width="20" height="80" class="candle-down" />
+            <text x="230" y="595" class="axis-label" style="fill:#00ff41;">$84.37 LOW</text>
 
-            const candleSeries = chart.addCandlestickSeries({
-                upColor: '#00ff41', downColor: '#ff4949', 
-                borderVisible: false,
-                wickUpColor: '#00ff41', wickDownColor: '#ff4949',
-            });
+            <line x1="550" y1="150" x2="550" y2="300" class="wick" />
+            <rect x="540" y="160" width="20" height="120" class="candle-up" />
 
-            // DATA FROM YOUR PHOTO: $84.37 Low to $112.06 Close
-            candleSeries.setData([
-                { time: '2026-03-20', open: 96.20, high: 98.20, low: 94.10, close: 95.80 },
-                { time: '2026-03-24', open: 92.40, high: 94.00, low: 84.37, close: 88.20 },
-                { time: '2026-03-27', open: 88.20, high: 99.40, low: 88.10, close: 98.20 },
-                { time: '2026-03-31', open: 98.20, high: 105.50, low: 98.00, close: 104.50 },
-                { time: '2026-04-02', open: 104.50, high: 112.07, low: 104.20, close: 112.06 }
-            ]);
+            <line x1="700" y1="125" x2="700" y2="200" class="wick" />
+            <rect x="690" y="125" width="20" height="50" class="candle-up" />
+            <text x="670" y="220" class="axis-label">THU CLOSE: $112.06</text>
 
-            // PHANTOM TARGET LINE (The Dashed Cyan Level)
-            candleSeries.createPriceLine({
-                price: 112.50,
-                color: 'cyan',
-                lineWidth: 3,
-                lineStyle: 1, // Dashed
-                axisLabelVisible: true,
-                title: 'PHANTOM PRINT',
-            });
+            <rect x="800" y="0" width="200" height="600" fill="rgba(0,123,255,0.05)" />
+            <text x="840" y="580" class="axis-label" style="fill:cyan;">SATURDAY SHADOW</text>
+        </svg>
+    </div>
 
-            // Target Arrow
-            candleSeries.setMarkers([
-                {
-                    time: '2026-04-02',
-                    position: 'aboveBar',
-                    color: 'cyan',
-                    shape: 'arrowDown',
-                    text: 'PHANTOM: $112.50'
-                }
-            ]);
-
-            // Handle browser resizing
-            window.onresize = function() {
-                chart.applyOptions({ 
-                    width: chartDiv.clientWidth, 
-                    height: chartDiv.clientHeight 
-                });
-            };
-        }, 500); // 500ms delay to ensure DOM is ready
-    </script>
 </body>
 </html>
