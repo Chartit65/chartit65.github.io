@@ -4,66 +4,116 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WTI SHADOW TERMINAL</title>
+    <script src="unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; color: #007bff; height: 100%; overflow: hidden; font-family: 'Courier New', Courier, monospace; }
-        .terminal-header { height: 70px; background: #0a0a0a; border-bottom: 2px solid #222; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
-        .title { font-size: 1.6rem; font-weight: 900; letter-spacing: 3px; }
-        .status { color: #00ff41; font-weight: bold; font-size: 0.9rem; text-align: right; }
-        .exit { color: #444; text-decoration: none; font-size: 0.7rem; }
+        body, html { margin: 0; padding: 0; background: #000; height: 100%; overflow: hidden; font-family: 'Courier New', Courier, monospace; }
+        .terminal-container { display: flex; flex-direction: column; height: 100vh; }
+        .header { background: #0a0a0a; border-bottom: 2px solid #222; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .title { color: #007bff; font-size: 1.5rem; font-weight: 900; letter-spacing: 3px; margin: 0; }
+        .status { color: #00ff41; font-size: 0.8rem; font-weight: bold; text-align: right; }
         
-        /* THE CHART AREA */
-        .chart-container { width: 100vw; height: calc(100vh - 70px); position: relative; background: #000; }
-        svg { width: 100%; height: 100%; }
-        
-        .price-line { stroke: #222; stroke-width: 1; }
-        .phantom-line { stroke: cyan; stroke-width: 2; stroke-dasharray: 8,8; }
-        .phantom-text { fill: cyan; font-size: 18px; font-weight: bold; }
-        .candle-up { fill: #00ff41; }
-        .candle-down { fill: #ff4949; }
-        .wick { stroke: #666; stroke-width: 1; }
-        .axis-label { fill: #666; font-size: 12px; }
+        /* TIMEFRAME SELECTOR */
+        .timeframe-bar { 
+            background: #111; 
+            padding: 10px 20px; 
+            border-bottom: 1px solid #222; 
+            display: flex; 
+            gap: 25px; 
+        }
+        .tf-btn { color: #555; cursor: pointer; font-size: 0.9rem; font-weight: bold; transition: 0.2s; }
+        .tf-btn:hover { color: #007bff; }
+        .tf-btn.active { color: #007bff; border-bottom: 2px solid #007bff; }
+
+        #chart-box { flex-grow: 1; width: 100%; background: #000; }
+        .exit-link { color: #444; text-decoration: none; font-size: 0.7rem; }
     </style>
 </head>
 <body>
 
-    <div class="terminal-header">
-        <div>
-            <div class="title">WTI SHADOW TERMINAL</div>
-            <a href="index.html" class="exit">← EXIT SESSION</a>
+    <div class="terminal-container">
+        <div class="header">
+            <div>
+                <h1 class="title">WTI SHADOW TERMINAL</h1>
+                <a href="index.html" class="exit-link">← DISCONNECT SESSION</a>
+            </div>
+            <div class="status">● SHADOW FEED: ACTIVE<br><span style="color:#333">128-BIT ENCRYPTION</span></div>
         </div>
-        <div class="status">
-            <div>● SHADOW FEED ACTIVE</div>
-            <div style="color: #444; font-size: 0.7rem;">ENCRYPTED CONNECTION</div>
+
+        <div class="timeframe-bar" id="tf-selector">
+            <div class="tf-btn" data-tf="1m">1m</div>
+            <div class="tf-btn" data-tf="5m">5m</div>
+            <div class="tf-btn" data-tf="15m">15m</div>
+            <div class="tf-btn active" data-tf="1H">1H</div>
+            <div class="tf-btn" data-tf="4H">4H</div>
+            <div class="tf-btn" data-tf="D">D</div>
         </div>
+
+        <div id="chart-box"></div>
     </div>
 
-    <div class="chart-container">
-        <svg viewBox="0 0 1000 600" preserveAspectRatio="none">
-            <line x1="0" y1="100" x2="1000" y2="100" class="price-line" />
-            <line x1="0" y1="200" x2="1000" y2="200" class="price-line" />
-            <line x1="0" y1="300" x2="1000" y2="300" class="price-line" />
-            <line x1="0" y1="400" x2="1000" y2="400" class="price-line" />
-            <line x1="0" y1="500" x2="1000" y2="500" class="price-line" />
+    <script>
+        const chartElement = document.getElementById('chart-box');
+        const chart = LightweightCharts.createChart(chartElement, {
+            width: chartElement.clientWidth,
+            height: chartElement.clientHeight,
+            layout: { backgroundColor: '#000000', textColor: '#d1d4dc' },
+            grid: { vertLines: { color: '#111' }, horzLines: { color: '#111' } },
+            leftPriceScale: { visible: true, borderColor: '#333' },
+            rightPriceScale: { visible: false },
+            timeScale: { borderColor: '#333', timeVisible: true, rightOffset: 15 },
+        });
 
-            <line x1="0" y1="120" x2="1000" y2="120" class="phantom-line" />
-            <text x="820" y="110" class="phantom-text">PHANTOM TARGET: $112.50</text>
-            <path d="M 850 80 L 860 100 L 870 80 Z" fill="cyan" /> <line x1="100" y1="250" x2="100" y2="350" class="wick" />
-            <rect x="90" y="270" width="20" height="60" class="candle-up" />
-            
-            <line x1="250" y1="380" x2="250" y2="580" class="wick" /> <rect x="240" y="400" width="20" height="80" class="candle-down" />
-            <text x="230" y="595" class="axis-label" style="fill:#00ff41;">$84.37 LOW</text>
+        const candleSeries = chart.addCandlestickSeries({
+            upColor: '#00ff41', downColor: '#ff4949', 
+            borderVisible: false, wickUpColor: '#00ff41', wickDownColor: '#ff4949',
+            priceScaleId: 'left',
+        });
 
-            <line x1="550" y1="150" x2="550" y2="300" class="wick" />
-            <rect x="540" y="160" width="20" height="120" class="candle-up" />
+        // 1H DATASET (The main breakout view)
+        const hourlyData = [
+            { time: 1742817600, open: 92.40, high: 94.00, low: 84.37, close: 88.20 }, // Mar 24
+            { time: 1743076800, open: 88.20, high: 99.40, low: 88.10, close: 98.20 }, // Mar 27
+            { time: 1743422400, open: 98.20, high: 105.50, low: 98.00, close: 104.50 }, // Mar 31
+            { time: 1743595200, open: 104.50, high: 112.07, low: 104.20, close: 112.06 }, // Apr 02
+            { time: 1743768000, open: 112.06, high: 113.10, low: 112.40, close: 112.50, color: 'cyan', wickColor: 'cyan' } // SATURDAY
+        ];
 
-            <line x1="700" y1="125" x2="700" y2="200" class="wick" />
-            <rect x="690" y="125" width="20" height="50" class="candle-up" />
-            <text x="670" y="220" class="axis-label">THU CLOSE: $112.06</text>
+        // DAILY DATASET
+        const dailyData = [
+            { time: '2026-03-24', open: 92.40, high: 94.00, low: 84.37, close: 88.20 },
+            { time: '2026-03-31', open: 98.20, high: 105.50, low: 98.00, close: 104.50 },
+            { time: '2026-04-02', open: 104.50, high: 112.07, low: 104.20, close: 112.06 },
+            { time: '2026-04-04', open: 112.06, high: 113.10, low: 112.40, close: 112.50, color: 'cyan' }
+        ];
 
-            <rect x="800" y="0" width="200" height="600" fill="rgba(0,123,255,0.05)" />
-            <text x="840" y="580" class="axis-label" style="fill:cyan;">SATURDAY SHADOW</text>
-        </svg>
-    </div>
+        // Set Initial View
+        candleSeries.setData(hourlyData);
 
+        // Add the Phantom Line
+        candleSeries.createPriceLine({
+            price: 112.50, color: 'cyan', lineWidth: 2, lineStyle: 2, axisLabelVisible: true, title: 'PHANTOM'
+        });
+
+        // TIMEFRAME SWITCHER LOGIC
+        document.querySelectorAll('.tf-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const tf = btn.getAttribute('data-tf');
+                if (tf === 'D') {
+                    candleSeries.setData(dailyData);
+                } else {
+                    // For 1m, 5m, 15m, 1H we use the detailed hourly set
+                    candleSeries.setData(hourlyData);
+                }
+                chart.timeScale().fitContent();
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            chart.applyOptions({ width: chartElement.clientWidth, height: chartElement.clientHeight });
+        });
+    </script>
 </body>
 </html>
