@@ -2,34 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OIL TERMINAL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EngageMe Terminal</title>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; }
-        .header { height: 40px; background: #000; color: #00ff00; font-family: monospace; line-height: 40px; padding-left: 15px; border-bottom: 1px solid #333; font-size: 12px; }
-        .chart-container { height: calc(100vh - 41px); width: 100%; }
+        body {
+            background-color: black;
+            color: #00FF00;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        #terminal {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            font-size: 1.1em;
+        }
     </style>
 </head>
 <body>
-    <div class="header">>> OIL TERMINAL: TRACKING PHANTOM PRINTS</div>
-    <div class="chart-container" id="tv-chart"></div>
-
-    <script type="text/javascript" src="s3.tradingview.com/tv.js"></script>
-    <script type="text/javascript">
-        new TradingView.widget({
-            "autosize": true,
-            "symbol": "TVC:USOIL",
-            "interval": "D",
-            "timezone": "Etc/UTC",
-            "theme": "dark",
-            "style": "1",
-            "locale": "en",
-            "toolbar_bg": "#f1f3f6",
-            "enable_publishing": false,
-            "hide_top_toolbar": false,
-            "allow_symbol_change": true,
-            "container_id": "tv-chart"
-        });
-    </script>
+    <div id="terminal"></div>
+    
+    <script src="script.js"></script>
 </body>
 </html>
+3:
