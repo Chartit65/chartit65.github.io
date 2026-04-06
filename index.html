@@ -2,45 +2,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PHANTOM PRINCE | TERMINAL</title>
     <style>
-        body { 
-            background: #000; color: #00FF41; font-family: monospace; 
-            margin: 0; height: 100vh; overflow: hidden; text-transform: uppercase;
-        }
-        /* PAGE 1: SPLASH */
-        #page1 { 
+        body { background: #000; color: #00FF41; font-family: monospace; margin: 0; height: 100vh; overflow: hidden; text-transform: uppercase; }
+        
+        /* THE SPLASH OVERLAY */
+        #splash { 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            height: 100vh; width: 100%; position: absolute; z-index: 100; background: #000; 
+            height: 100vh; width: 100%; position: absolute; top: 0; left: 0; z-index: 100; background: #000; 
         }
-        /* PAGE 2: TERMINAL (The Hub) */
-        #page2 { 
-            display: none; flex-direction: column; height: 100vh; width: 100%; 
+        
+        /* THE TERMINAL HUB (Behind the splash) */
+        #terminal { 
+            display: flex; flex-direction: column; height: 100vh; width: 100%; position: relative; z-index: 10;
         }
-        .enter-btn { 
-            border: 2px solid #00FF41; padding: 20px 40px; color: #00FF41; 
-            font-size: 24px; cursor: pointer; background: transparent; font-weight: bold; 
-        }
+
+        .enter-btn { border: 2px solid #00FF41; padding: 20px 40px; color: #00FF41; font-size: 24px; cursor: pointer; background: transparent; font-weight: bold; }
         header { padding: 15px; border-bottom: 2px solid #00FF41; text-align: center; }
-        
-        /* THE CHART WINDOW */
-        .chart-box { flex-grow: 1; width: 100%; background: #000; position: relative; }
-        iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        
-        footer { padding: 15px; border-top: 2px solid #00FF41; display: flex; justify-content: space-around; background: #050505; }
+        .chart-box { flex-grow: 1; width: 100%; background: #000; }
+        iframe { width: 100%; height: 100%; border: none; }
+        footer { padding: 15px; border-top: 2px solid #00FF41; display: flex; justify-content: space-around; background: #050505; font-size: 12px; }
         .pink { color: #FF00FF; }
     </style>
 </head>
 <body>
 
-    <div id="page1">
-        <h1 style="letter-spacing: 10px; font-size: 35px;">PHANTOM PRINCE</h1>
+    <div id="splash">
+        <h1 style="letter-spacing: 10px;">PHANTOM PRINCE</h1>
         <p style="color: #444; margin-bottom: 30px;">WTI CRUDE PROTOCOL</p>
-        <button class="enter-btn" onclick="document.getElementById('page1').style.display='none'; document.getElementById('page2').style.display='flex';">ENTER TERMINAL</button>
+        <button class="enter-btn" onclick="document.getElementById('splash').style.display='none';">ENTER TERMINAL</button>
     </div>
 
-    <div id="page2">
+    <div id="terminal">
         <header>SYS: PHANTOM PRINCE // ACTIVE MONITOR</header>
         <div class="chart-box">
             <iframe src="www.tradingview-widget.com/embed-widget/advanced-chart/?symbol=TVC%3AUSOIL&interval=60&theme=dark&style=1&timezone=Etc%2FUTC&locale=en" allowfullscreen></iframe>
