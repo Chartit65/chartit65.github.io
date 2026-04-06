@@ -1,67 +1,50 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>PHANTOM MONITOR</title>
-        <style>
-            body {
-                background-color: #000;
-                color: #00FF41;
-                font-family: 'Courier New', monospace;
-                margin: 0;
-                height: 100vh;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                text-transform: uppercase;
-            }
-            header {
-                padding: 25px;
-                border-bottom: 2px solid #00FF41;
-                text-align: center;
-            }
-            .main-container {
-                flex-grow: 1;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
-            }
-            .monitor-box {
-                border: 1px solid #00FF41;
-                padding: 50px;
-                background: rgba(0, 255, 65, 0.05);
-            }
-            footer {
-                padding: 20px;
-                border-top: 1px solid #00FF41;
-                text-align: center;
-                font-size: 14px;
-            }
-            .status-yellow { color: #FFFF00; }
-        </style>
-    </head>
-    <body>
-
-        <header>
-            <div style="font-size: 30px; font-weight: bold; letter-spacing: 4px;">SYS: PHANTOM PRINCE</div>
-            <div style="color: #888; font-size: 14px; margin-top: 5px;">WTI CRUDE // POST-THURSDAY PROTOCOL</div>
-        </header>
-
-        <div class="main-container">
-            <div class="monitor-box">
-                <p>THURSDAY CHARGE: <span class="status-yellow">COMPLETE</span></p>
-                <p>OIL STATUS: <span class="status-yellow">WAITING FOR PHANTOM BLOCKS</span></p>
-                <p style="font-size: 2em; margin-top: 25px;">[ STANDBY ]</p>
-            </div>
-        </div>
-
-        <footer>
-            OFF-MARKET // WEEKEND PHANTOM PRINT DETECTION ACTIVE
-        </footer>
-
-    </body>
-    </html>
-    8:40 PM
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PHANTOM PRINCE | ENTER</title>
+    <style>
+        body { 
+            background: #000; 
+            color: #00FF41; 
+            font-family: 'Courier New', monospace; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            margin: 0; 
+            text-transform: uppercase;
+        }
+        .title { 
+            font-size: 42px; 
+            font-weight: bold; 
+            letter-spacing: 12px; 
+            margin-bottom: 10px; 
+        }
+        .subtitle { 
+            color: #888; 
+            margin-bottom: 50px; 
+            letter-spacing: 2px;
+        }
+        .enter-btn { 
+            border: 2px solid #00FF41; 
+            padding: 20px 40px; 
+            color: #00FF41; 
+            text-decoration: none; 
+            font-size: 1.5em; 
+            transition: 0.4s; 
+        }
+        .enter-btn:hover { 
+            background: #00FF41; 
+            color: #000; 
+            box-shadow: 0 0 30px #00FF41; 
+        }
+    </style>
+</head>
+<body>
+    <div class="title">PHANTOM PRINCE</div>
+    <div class="subtitle">WTI CRUDE PROTOCOL // EST. 1965</div>
+    <a href="terminal.html" class="enter-btn">ENTER TERMINAL</a>
+</body>
+</html>
