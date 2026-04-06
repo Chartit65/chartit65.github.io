@@ -3,72 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PHANTOM PRINCE | WTI TERMINAL</title>
+    <title>PHANTOM PRINCE | PORTAL</title>
     <style>
         body { 
             background: #000; color: #00FF41; font-family: 'Courier New', monospace; 
             margin: 0; height: 100vh; overflow: hidden; text-transform: uppercase;
         }
-        #landing { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
-        .enter-btn { border: 2px solid #00FF41; padding: 20px 40px; color: #00FF41; font-size: 1.5em; cursor: pointer; background: none; }
-        #terminal { display: none; flex-direction: column; height: 100vh; }
-        header { padding: 10px; border-bottom: 2px solid #00FF41; text-align: center; font-size: 20px; font-weight: bold; }
+        /* MAIN LANDING PAGE (PAGE 1) */
+        #page-one {
+            display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh;
+        }
+        .enter-btn { 
+            border: 2px solid #00FF41; padding: 25px 50px; color: #00FF41; 
+            font-size: 1.8em; cursor: pointer; background: none; transition: 0.3s;
+            letter-spacing: 5px; font-weight: bold;
+        }
+        .enter-btn:hover { background: #00FF41; color: #000; box-shadow: 0 0 30px #00FF41; }
+
+        /* THE SOFTWARE HUB (PAGE 2) */
+        #page-two {
+            display: none; flex-direction: column; height: 100vh;
+        }
+        header { padding: 15px; border-bottom: 2px solid #00FF41; text-align: center; font-size: 20px; font-weight: bold; }
         
-        /* CHART CONTAINER */
-        .chart-container { flex-grow: 1; border-bottom: 2px solid #00FF41; background: #000; position: relative; }
+        .software-container { flex-grow: 1; border-bottom: 2px solid #00FF41; background: #000; }
         
-        .footer-ticker { padding: 15px; background: #050505; }
-        .data-row { font-size: 16px; font-weight: bold; margin: 4px 0; letter-spacing: 1px; }
+        .footer-ticker { padding: 15px; background: #050505; display: flex; justify-content: space-around; }
+        .data-row { font-size: 14px; font-weight: bold; }
         .pink { color: #FF00FF; }
-        .cyan { color: #00FFFF; }
     </style>
 </head>
 <body>
 
-    <div id="landing">
-        <h1 style="letter-spacing: 15px; font-size: 45px;">PHANTOM PRINCE</h1>
-        <button class="enter-btn" onclick="runTerminal()">ENTER TERMINAL</button>
+    <div id="page-one">
+        <h1 style="letter-spacing: 15px; font-size: 45px; margin-bottom: 10px;">PHANTOM PRINCE</h1>
+        <p style="color: #444; margin-bottom: 50px; letter-spacing: 2px;">WTI CRUDE PROTOCOL // EST. 1965</p>
+        <button class="enter-btn" onclick="openTerminal()">ENTER TERMINAL</button>
     </div>
 
-    <div id="terminal">
-        <header>SYS: PHANTOM PRINCE // LIVE WTI FEED</header>
+    <div id="page-two">
+        <header>SYS: PHANTOM PRINCE // ACTIVE MONITOR</header>
         
-        <div class="chart-container">
-            <div class="tradingview-widget-container" style="height:100%;width:100%">
-                <div id="tradingview_chart" style="height:100%;width:100%"></div>
-                <script type="text/javascript" src="s3.tradingview.com/tv.js"></script>
-                <script type="text/javascript">
-                new TradingView.widget({
-                    "autosize": true,
-                    "symbol": "TVC:USOIL",
-                    "interval": "60",
-                    "timezone": "Etc/UTC",
-                    "theme": "dark",
-                    "style": "1",
-                    "locale": "en",
-                    "toolbar_bg": "#f1f3f6",
-                    "enable_publishing": false,
-                    "hide_side_toolbar": false,
-                    "allow_symbol_change": true,
-                    "container_id": "tradingview_chart"
-                });
-                </script>
-            </div>
-            </div>
+        <div class="software-container">
+            <div id="tv-chart" style="height:100%; width:100%;"></div>
+            <script type="text/javascript" src="s3.tradingview.com/tv.js"></script>
+            <script type="text/javascript">
+                function loadChart() {
+                    new TradingView.widget({
+                        "autosize": true,
+                        "symbol": "TVC:USOIL",
+                        "interval": "60",
+                        "timezone": "Etc/UTC",
+                        "theme": "dark",
+                        "style": "1",
+                        "locale": "en",
+                        "toolbar_bg": "#f1f3f6",
+                        "enable_publishing": false,
+                        "hide_side_toolbar": false,
+                        "allow_symbol_change": true,
+                        "container_id": "tv-chart"
+                    });
+                }
+            </script>
+        </div>
 
         <div class="footer-ticker">
-            <div class="data-row">THU: 112.06 | FRI: 112.25</div>
+            <div class="data-row">THU: 112.06</div>
+            <div class="data-row">FRI: 112.25</div>
             <div class="data-row pink">SUN PRINT: 112.65</div>
-            <div class="data-row cyan">LIVE MONITOR: ACTIVE</div>
         </div>
     </div>
 
     <script>
-        function runTerminal() {
-            document.getElementById('landing').style.display = 'none';
-            document.getElementById('terminal').style.display = 'flex';
-            // Force a resize event to make sure the chart fills the box properly
-            window.dispatchEvent(new Event('resize'));
+        function openTerminal() {
+            // 1. Hide Landing
+            document.getElementById('page-one').style.display = 'none';
+            // 2. Show Hub
+            document.getElementById('page-two').style.display = 'flex';
+            // 3. Kickstart the Chart
+            loadChart();
         }
     </script>
 </body>
