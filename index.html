@@ -2,15 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PHANTOM PRINCE | PORTAL</title>
     <style>
         body { 
             background: #000; color: #00FF41; font-family: 'Courier New', monospace; 
             margin: 0; height: 100vh; overflow: hidden; text-transform: uppercase;
         }
-        /* MAIN LANDING PAGE (PAGE 1) */
-        #page-one {
+        /* MAIN LANDING PAGE */
+        #portal {
             display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh;
         }
         .enter-btn { 
@@ -20,52 +19,33 @@
         }
         .enter-btn:hover { background: #00FF41; color: #000; box-shadow: 0 0 30px #00FF41; }
 
-        /* THE SOFTWARE HUB (PAGE 2) */
-        #page-two {
+        /* THE HUB (PAGE 2) */
+        #hub {
             display: none; flex-direction: column; height: 100vh;
         }
         header { padding: 15px; border-bottom: 2px solid #00FF41; text-align: center; font-size: 20px; font-weight: bold; }
         
-        .software-container { flex-grow: 1; border-bottom: 2px solid #00FF41; background: #000; }
+        .viewer-box { flex-grow: 1; background: #000; border-bottom: 2px solid #00FF41; position: relative; }
         
         .footer-ticker { padding: 15px; background: #050505; display: flex; justify-content: space-around; }
         .data-row { font-size: 14px; font-weight: bold; }
         .pink { color: #FF00FF; }
     </style>
+    <script type="text/javascript" src="s3.tradingview.com/tv.js"></script>
 </head>
 <body>
 
-    <div id="page-one">
+    <div id="portal">
         <h1 style="letter-spacing: 15px; font-size: 45px; margin-bottom: 10px;">PHANTOM PRINCE</h1>
-        <p style="color: #444; margin-bottom: 50px; letter-spacing: 2px;">WTI CRUDE PROTOCOL // EST. 1965</p>
-        <button class="enter-btn" onclick="openTerminal()">ENTER TERMINAL</button>
+        <p style="color: #444; margin-bottom: 50px; letter-spacing: 2px;">WTI CRUDE PROTOCOL // 1965</p>
+        <button class="enter-btn" onclick="activateSystem()">ENTER TERMINAL</button>
     </div>
 
-    <div id="page-two">
+    <div id="hub">
         <header>SYS: PHANTOM PRINCE // ACTIVE MONITOR</header>
         
-        <div class="software-container">
-            <div id="tv-chart" style="height:100%; width:100%;"></div>
-            <script type="text/javascript" src="s3.tradingview.com/tv.js"></script>
-            <script type="text/javascript">
-                function loadChart() {
-                    new TradingView.widget({
-                        "autosize": true,
-                        "symbol": "TVC:USOIL",
-                        "interval": "60",
-                        "timezone": "Etc/UTC",
-                        "theme": "dark",
-                        "style": "1",
-                        "locale": "en",
-                        "toolbar_bg": "#f1f3f6",
-                        "enable_publishing": false,
-                        "hide_side_toolbar": false,
-                        "allow_symbol_change": true,
-                        "container_id": "tv-chart"
-                    });
-                }
-            </script>
-        </div>
+        <div class="viewer-box" id="chart-mount">
+            </div>
 
         <div class="footer-ticker">
             <div class="data-row">THU: 112.06</div>
@@ -75,13 +55,28 @@
     </div>
 
     <script>
-        function openTerminal() {
-            // 1. Hide Landing
-            document.getElementById('page-one').style.display = 'none';
-            // 2. Show Hub
-            document.getElementById('page-two').style.display = 'flex';
-            // 3. Kickstart the Chart
-            loadChart();
+        function activateSystem() {
+            // 1. Swap the display
+            document.getElementById('portal').style.display = 'none';
+            document.getElementById('hub').style.display = 'flex';
+            
+            // 2. The "Micro-Sleep" (Wait 100ms for the browser to render the hub)
+            setTimeout(function() {
+                new TradingView.widget({
+                    "autosize": true,
+                    "symbol": "TVC:USOIL",
+                    "interval": "60",
+                    "timezone": "Etc/UTC",
+                    "theme": "dark",
+                    "style": "1",
+                    "locale": "en",
+                    "toolbar_bg": "#f1f3f6",
+                    "enable_publishing": false,
+                    "hide_side_toolbar": false,
+                    "allow_symbol_change": true,
+                    "container_id": "chart-mount"
+                });
+            }, 100); 
         }
     </script>
 </body>
