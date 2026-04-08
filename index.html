@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Terminal V4.4 | Proxy Bridge Mode</title>
+    <title>Terminal V4.5 | Local Data Mode</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #000; color: #00ff00; font-family: monospace; overflow: hidden; }
@@ -61,12 +61,6 @@
             white-space: nowrap;
             border-left: 2px solid currentColor;
         }
-
-        #proxy-frame {
-            display: none;
-            width: 0; height: 0;
-            border: none;
-        }
     </style>
 </head>
 <body>
@@ -82,42 +76,26 @@
     <div id="overlay"></div>
 </div>
 
-<iframe id="proxy-frame" src="about:blank"></iframe>
-
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
 
-const PROXY_PAGE = '/proxy.html';
-
-let lastLevels = [];
+let lastLevels  = [];
+let cachedData  = null; // cache data.json so we only fetch it once per session
 
 function setStatus(msg) {
     document.getElementById('status').innerText = msg;
 }
 
-function proxyFetch(queryParams) {
-    return new Promise((resolve, reject) => {
-        const frame   = document.getElementById('proxy-frame');
-        const timeout = setTimeout(() => {
-            reject(new Error('Proxy timeout'));
-        }, 12000);
-
-        function onMessage(event) {
-            if (event.origin !== window.location.origin) return;
-            clearTimeout(timeout);
-            window.removeEventListener('message', onMessage);
-            if (event.data.status === 'ok') {
-                resolve(event.data.data);
-            } else {
-                reject(new Error(event.data.message || 'Proxy error'));
-            }
-        }
-
-        window.addEventListener('message', onMessage);
-        frame.src = PROXY_PAGE + '?' + queryParams;
-    });
+// ── LOAD data.json (same domain — no CORS) ────────────────────────────────────
+async function loadData() {
+    if (cachedData) return cachedData;
+    const res = await fetch('/data.json?cb=' + Date.now());
+    if (!res.ok) throw new Error('Could not load data.json');
+    cachedData = await res.json();
+    return cachedData;
 }
 
+// ── BUILD CHART ───────────────────────────────────────────────────────────────
 function buildChart(symbol) {
     const container = document.getElementById('chart-container');
     container.innerHTML = '';
@@ -137,6 +115,7 @@ function buildChart(symbol) {
     });
 }
 
+// ── DRAW OVERLAY LINES ────────────────────────────────────────────────────────
 function drawOverlay(levels) {
     const overlay = document.getElementById('overlay');
     const wrapper = document.getElementById('wrapper');
@@ -176,17 +155,23 @@ window.addEventListener('resize', () => {
     if (lastLevels.length) drawOverlay(lastLevels);
 });
 
+// ── SYNC ──────────────────────────────────────────────────────────────────────
 async function sync() {
     const ticker = document.getElementById('tickerInput').value.toUpperCase().trim();
     if (!ticker) { setStatus('ENTER A TICKER'); return; }
 
-    setStatus('CONNECTING: ' + ticker + '...');
+    setStatus('LOADING: ' + ticker + '...');
     document.getElementById('overlay').innerHTML = '';
     buildChart(ticker);
 
     try {
-        const data = await proxyFetch(`ticker=${encodeURIComponent(ticker)}`);
-        const row  = data[ticker] || data;
+        const data = await loadData();
+        const row  = data[ticker];
+
+        if (!row) {
+            setStatus('TICKER NOT IN DATA.JSON — CHART ONLY');
+            return;
+        }
 
         const levels = [
             { price: parseFloat(row.floor        || 0), label: 'FLOOR',    color: '#00ff00' },
@@ -198,7 +183,7 @@ async function sync() {
         ].filter(l => l.price > 0 && !isNaN(l.price));
 
         if (levels.length === 0) {
-            setStatus('NO LEVELS SAVED — CHART ONLY');
+            setStatus('NO LEVELS IN DATA.JSON — CHART ONLY');
         } else {
             setTimeout(() => {
                 drawOverlay(levels);
@@ -208,10 +193,11 @@ async function sync() {
 
     } catch (err) {
         console.error(err);
-        setStatus('DATA FEED ERROR — CHART ONLY');
+        setStatus('ERROR LOADING DATA.JSON');
     }
 }
 
+// ── EVENTS ────────────────────────────────────────────────────────────────────
 document.getElementById('syncBtn').onclick = sync;
 document.getElementById('tickerInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') sync();
