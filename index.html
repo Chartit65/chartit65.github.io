@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Terminal V4.0 | Overlay Mode</title>
+    <title>Terminal V4.1 | JSONP Mode</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #000; color: #00ff00; font-family: monospace; overflow: hidden; }
@@ -76,22 +76,55 @@
     <div id="overlay"></div>
 </div>
 
-<!-- FIXED: https:// is required or the script never loads -->
 <script src="https://s3.tradingview.com/tv.js"></script>
-
 <script>
-const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbzZ9P9dCBtfrFrTL9k_Spe-MdkqexGj8fb2JOZyQcCW5rxk1dDjZ-k7Dqyhu5pjC8f0/exec";
+
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbxwQVzA5v_DqWg9HUIc3ZLbYXsO5xnNFFVm2GEfs0uJnG5gqY8hSRJQA7czuglvBGc/exec";
 
 let lastLevels = [];
 
+// ── STATUS ────────────────────────────────────────────────────────────────────
 function setStatus(msg) {
     document.getElementById('status').innerText = msg;
+}
+
+// ── JSONP FETCH ───────────────────────────────────────────────────────────────
+// Uses a <script> tag instead of fetch() — bypasses CORS entirely.
+// Apps Script serves it as: callbackName({...your data...})
+function fetchJSONP(url) {
+    return new Promise((resolve, reject) => {
+        const cbName  = 'jsonp_' + Date.now();
+        const script  = document.createElement('script');
+        const timeout = setTimeout(() => {
+            reject(new Error('JSONP timeout'));
+            delete window[cbName];
+            script.remove();
+        }, 10000); // 10 second timeout
+
+        window[cbName] = (data) => {
+            clearTimeout(timeout);
+            resolve(data);
+            delete window[cbName];
+            script.remove();
+        };
+
+        script.onerror = () => {
+            clearTimeout(timeout);
+            reject(new Error('JSONP script load error'));
+            delete window[cbName];
+            script.remove();
+        };
+
+        script.src = url + '&callback=' + cbName;
+        document.head.appendChild(script);
+    });
 }
 
 // ── BUILD CHART ───────────────────────────────────────────────────────────────
 function buildChart(symbol) {
     const container = document.getElementById('chart-container');
-    container.innerHTML = ''; // wipe old widget
+    container.innerHTML = '';
 
     new TradingView.widget({
         autosize: true,
@@ -108,7 +141,7 @@ function buildChart(symbol) {
     });
 }
 
-// ── DRAW OVERLAY LINES (price-based positioning) ──────────────────────────────
+// ── DRAW OVERLAY LINES ────────────────────────────────────────────────────────
 function drawOverlay(levels) {
     const overlay = document.getElementById('overlay');
     const wrapper = document.getElementById('wrapper');
@@ -118,12 +151,11 @@ function drawOverlay(levels) {
     if (valid.length === 0) return;
 
     const prices = valid.map(l => l.price);
-    const minP   = Math.min(...prices) * 0.80; // 20% padding below lowest
-    const maxP   = Math.max(...prices) * 1.20; // 20% padding above highest
+    const minP   = Math.min(...prices) * 0.80;
+    const maxP   = Math.max(...prices) * 1.20;
     const h      = wrapper.offsetHeight;
 
     valid.forEach(l => {
-        // Higher price = smaller topPx (closer to top of screen)
         const pct   = ((maxP - l.price) / (maxP - minP)) * 100;
         const topPx = Math.round((pct / 100) * h);
 
@@ -159,13 +191,12 @@ async function sync() {
     buildChart(ticker);
 
     try {
-        const res = await fetch(`${GOOGLE_URL}?ticker=${encodeURIComponent(ticker)}&cb=${Date.now()}`);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await fetchJSONP(
+            `${GOOGLE_URL}?ticker=${encodeURIComponent(ticker)}&cb=${Date.now()}`
+        );
 
-        const data = await res.json();
-        const row  = data[ticker] || data;
+        const row = data[ticker] || data;
 
-        // FIXED: || 0 prevents NaN from slipping through the filter
         const levels = [
             { price: parseFloat(row.floor        || 0), label: 'FLOOR',    color: '#00ff00' },
             { price: parseFloat(row.ceiling      || 0), label: 'CEILING',  color: '#ff00ff' },
@@ -200,6 +231,7 @@ window.onload = () => {
     document.getElementById('tickerInput').value = 'AAPL';
     sync();
 };
+
 </script>
 </body>
 </html>
