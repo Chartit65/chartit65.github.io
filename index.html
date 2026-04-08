@@ -8,7 +8,7 @@
         #header { height: 50px; background: #111; border-bottom: 2px solid #333; display: flex; align-items: center; padding: 0 20px; justify-content: space-between; }
         #chart-container { height: calc(100vh - 50px); width: 100%; }
         .controls { display: flex; gap: 10px; }
-        input { background: #000; border: 1px solid #00ff00; color: #00ff00; padding: 5px; }
+        input { background: #000; border: 1px solid #00ff00; color: #00ff00; padding: 5px; text-transform: uppercase; }
         button { background: #00ff00; color: #000; border: none; padding: 5px 15px; cursor: pointer; font-weight: bold; }
         button:hover { background: #00cc00; }
     </style>
@@ -16,100 +16,13 @@
 <body>
 
 <div id="header">
-    <div>SYSTEM STATUS: ACTIVE // TERMINAL_01</div>
+    <div>SYSTEM STATUS: ACTIVE // AUTO-SYNC ENABLED</div>
     <div class="controls">
-        <input type="text" id="tickerInput" placeholder="ENTER TICKER" style="text-transform:uppercase">
+        <input type="text" id="tickerInput" placeholder="ENTER TICKER">
         <button onclick="syncData()">SYNC DATA & CHART</button>
     </div>
 </div>
 
 <div id="chart-container"></div>
 
-<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-
-<script>
-    // YOUR UPDATED GOOGLE DEPLOYMENT URL
-    const googleUrl = "https://script.google.com/macros/s/AKfycbyJrf_q-AHFWayo2_W948gxVNmnYIL3CUqMwWrtzlHbY5ZyXX9rDkt5cFGdTVMgj_KO/exec";
-
-    let widget;
-
-    function initChart(symbol = "NASDAQ:BTM") {
-        widget = new TradingView.widget({
-            "autosize": true,
-            "symbol": symbol,
-            "interval": "1",
-            "timezone": "Etc/UTC",
-            "theme": "dark",
-            "style": "1",
-            "locale": "en",
-            "toolbar_bg": "#f1f3f6",
-            "enable_publishing": false,
-            "hide_top_toolbar": false,
-            "save_image": false,
-            "container_id": "chart-container"
-        });
-    }
-
-    // Initialize default chart on start
-    initChart();
-
-    async function syncData() {
-        const ticker = document.getElementById('tickerInput').value.toUpperCase().trim();
-        if (!ticker) return alert("Enter a ticker symbol.");
-
-        try {
-            console.log("Fetching live data for:", ticker);
-            const response = await fetch(googleUrl);
-            const data = await response.json();
-            
-            // Access the ticker directly from our new JSON format
-            const stockInfo = data[ticker];
-
-            if (stockInfo) {
-                const floorPrice = parseFloat(stockInfo.floor);
-                const ceilingPrice = parseFloat(stockInfo.ceiling);
-
-                // Reload chart for the new ticker
-                initChart(ticker);
-
-                widget.onChartReady(() => {
-                    // Create the Green Floor Line (CXAI Rule)
-                    widget.chart().createShape({
-                        price: floorPrice,
-                        shape: 'horizontal_line',
-                        lock: true,
-                        overrides: {
-                            linecolor: '#00ff00',
-                            linewidth: 3,
-                            showLabel: true,
-                            text: "FLOOR: " + floorPrice
-                        }
-                    });
-
-                    // Create the Ceiling/Limit Line
-                    widget.chart().createShape({
-                        price: ceilingPrice,
-                        shape: 'horizontal_line',
-                        lock: true,
-                        overrides: {
-                            linecolor: '#ff00ff',
-                            linewidth: 2,
-                            showLabel: true,
-                            text: "CEILING: " + ceilingPrice
-                        }
-                    });
-                });
-
-                console.log("System Synced: " + ticker);
-            } else {
-                alert("Ticker " + ticker + " not found in Spreadsheet.");
-            }
-        } catch (err) {
-            console.error("Sync Error:", err);
-            alert("Connection Error. Check if your Apps Script is Deployed as 'Anyone'.");
-        }
-    }
-</script>
-
-</body>
-</html>
+<script type="text/javascript" src="https
