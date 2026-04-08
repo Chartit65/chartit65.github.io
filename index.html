@@ -2,36 +2,48 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://s3.tradingview.com https://*.tradingview.com; script-src 'self' 'unsafe-inline' https://s3.tradingview.com; connect-src *; style-src 'self' 'unsafe-inline';">
-    <title>Terminal V3.7 | Overlay Mode</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://s3.tradingview.com https://*.tradingview.com https://www.tradingview-widget.com https://*.tradingview-widget.com blob:; frame-src https://*.tradingview.com https://*.tradingview-widget.com https://s.tradingview.com; connect-src *; style-src 'self' 'unsafe-inline' https://*.tradingview.com; img-src * data: blob:; worker-src blob:; font-src * data:;">
+    <title>Terminal V3.8 | Overlay Mode</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #000; color: #00ff00; font-family: monospace; overflow: hidden; }
 
         #header {
-            height: 60px; background: #111;
+            height: 60px;
+            background: #111;
             border-bottom: 2px solid #333;
-            display: flex; align-items: center;
-            padding: 0 20px; gap: 16px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 16px;
         }
 
         input {
-            background: #000; border: 1px solid #00ff00;
-            color: #00ff00; padding: 8px; width: 150px;
-            font-family: monospace; text-transform: uppercase;
+            background: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px;
+            width: 150px;
+            font-family: monospace;
+            font-size: 13px;
+            text-transform: uppercase;
         }
         input:focus { outline: none; box-shadow: 0 0 4px #00ff00; }
 
         button {
-            background: #00ff00; color: #000; border: none;
-            padding: 8px 20px; cursor: pointer; font-weight: bold;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 8px 20px;
+            cursor: pointer;
+            font-weight: bold;
             font-family: monospace;
+            font-size: 13px;
         }
         button:hover { background: #00cc00; }
 
         #status { font-size: 11px; color: #666; flex: 1; }
 
-        /* wrapper holds chart + overlay together */
         #wrapper {
             position: relative;
             height: calc(100vh - 60px);
@@ -41,23 +53,29 @@
 
         #chart-container { height: 100%; width: 100%; }
 
-        /* overlay sits on top of the iframe */
-        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; }
+        #overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
 
         .price-line {
             position: absolute;
             left: 0;
-            width: calc(100% - 65px); /* leave room for TV price axis */
+            width: calc(100% - 65px);
             height: 2px;
             pointer-events: none;
         }
+
         .price-label {
             position: absolute;
             right: 70px;
             font-size: 11px;
             font-family: monospace;
             font-weight: bold;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             padding: 1px 6px;
             pointer-events: none;
             transform: translateY(-50%);
@@ -81,18 +99,22 @@
 
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
+
+// ── CONFIG — update this URL after redeploying your Apps Script ──────────────
 const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbxYSKyPjur9E5JmjnoDuUeUt3VZH5CNnaznH0haXg_m58WHjhrl8pFMSNjn_cKJwZ-q/exec";
 
+// ── STATE ─────────────────────────────────────────────────────────────────────
 let lastLevels = [];
 
+// ── HELPERS ───────────────────────────────────────────────────────────────────
 function setStatus(msg) {
     document.getElementById('status').innerText = msg;
 }
 
-// ── CHART ─────────────────────────────────────────────────────────────────
+// ── CHART ─────────────────────────────────────────────────────────────────────
 function buildChart(symbol) {
     const container = document.getElementById('chart-container');
-    container.innerHTML = ''; // clear previous widget before building new one
+    container.innerHTML = ''; // wipe old widget before building new one
 
     new TradingView.widget({
         autosize: true,
@@ -102,11 +124,18 @@ function buildChart(symbol) {
         theme: "dark",
         style: "1",
         locale: "en",
+        toolbar_bg: "#111",
+        enable_publishing: false,
+        hide_top_toolbar: false,
+        save_image: false,
         container_id: "chart-container"
     });
 }
 
-// ── OVERLAY LINES ─────────────────────────────────────────────────────────
+// ── OVERLAY LINES ─────────────────────────────────────────────────────────────
+// NOTE: The free TradingView widget (tv.js) does NOT expose createShape() or
+// any drawing API. Overlay divs positioned by price math is the correct
+// workaround for the free widget.
 function drawOverlay(levels) {
     const overlay = document.getElementById('overlay');
     const wrapper = document.getElementById('wrapper');
@@ -115,24 +144,21 @@ function drawOverlay(levels) {
     const valid = levels.filter(l => l.price > 0);
     if (valid.length === 0) return;
 
-    // Build price range with padding so lines aren't crammed to edges
     const prices = valid.map(l => l.price);
     const minP   = Math.min(...prices) * 0.80;
     const maxP   = Math.max(...prices) * 1.20;
     const h      = wrapper.offsetHeight;
 
     valid.forEach(l => {
-        // Higher price = closer to top (lower topPx)
+        // Higher price = lower topPx (closer to top of chart)
         const pct   = ((maxP - l.price) / (maxP - minP)) * 100;
         const topPx = Math.round((pct / 100) * h);
 
-        // Horizontal line
         const line = document.createElement('div');
         line.className        = 'price-line';
         line.style.top        = topPx + 'px';
         line.style.background = l.color;
 
-        // Label
         const label = document.createElement('div');
         label.className   = 'price-label';
         label.style.top   = topPx + 'px';
@@ -146,12 +172,12 @@ function drawOverlay(levels) {
     lastLevels = levels;
 }
 
-// Redraw on resize so positions stay accurate
+// Redraw on resize so line positions stay accurate
 window.addEventListener('resize', () => {
     if (lastLevels.length) drawOverlay(lastLevels);
 });
 
-// ── SYNC ──────────────────────────────────────────────────────────────────
+// ── SYNC ──────────────────────────────────────────────────────────────────────
 async function sync() {
     const ticker = document.getElementById('tickerInput').value.toUpperCase().trim();
     if (!ticker) { setStatus('ENTER A TICKER'); return; }
@@ -165,6 +191,7 @@ async function sync() {
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
 
+        // Handle both { TICKER: { floor, ceiling } } and flat { floor, ceiling }
         const row = data[ticker] || data;
 
         const levels = [
@@ -179,19 +206,20 @@ async function sync() {
         if (levels.length === 0) {
             setStatus('NO LEVELS FOUND — CHART ONLY');
         } else {
+            // Wait for TradingView iframe to finish rendering before drawing overlay
             setTimeout(() => {
                 drawOverlay(levels);
-                setStatus('ONLINE // ' + ticker + ' // ' + levels.length + ' LEVELS');
-            }, 1800); // wait for TV iframe to finish rendering
+                setStatus('ONLINE // ' + ticker + ' // ' + levels.length + ' LEVELS LOADED');
+            }, 1800);
         }
 
     } catch (err) {
-        console.error(err);
+        console.error('Fetch error:', err);
         setStatus('DATA ERROR — CHART ONLY');
     }
 }
 
-// ── EVENTS ────────────────────────────────────────────────────────────────
+// ── EVENTS ────────────────────────────────────────────────────────────────────
 document.getElementById('syncBtn').onclick = sync;
 document.getElementById('tickerInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') sync();
@@ -201,6 +229,7 @@ window.onload = () => {
     document.getElementById('tickerInput').value = 'AAPL';
     sync();
 };
+
 </script>
 </body>
 </html>
