@@ -18,22 +18,22 @@
 <div id="header">
     <div>SYSTEM STATUS: ACTIVE // TERMINAL_01</div>
     <div class="controls">
-        <input type="text" id="tickerInput" placeholder="ENTER TICKER (e.g. BTM)" style="text-transform:uppercase">
+        <input type="text" id="tickerInput" placeholder="ENTER TICKER" style="text-transform:uppercase">
         <button onclick="syncData()">SYNC DATA & CHART</button>
     </div>
 </div>
 
-<div id="chart-container" id="tv-chart"></div>
+<div id="chart-container"></div>
 
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
 <script>
-    // PASTE YOUR GOOGLE DEPLOYMENT URL HERE
-    const googleUrl = "https://script.google.com/macros/s/AKfycbyRm0lzz-MRqnZVnYcy644oer4r-1ZbVGftx4TWquxE91rYswCGepwU4ONnIYQHyrFC/exec";
+    // YOUR UPDATED GOOGLE DEPLOYMENT URL
+    const googleUrl = "https://script.google.com/macros/s/AKfycbyJrf_q-AHFWayo2_W948gxVNmnYIL3CUqMwWrtzlHbY5ZyXX9rDkt5cFGdTVMgj_KO/exec";
 
     let widget;
 
-    function initChart(symbol = "NASDAQ:BTM", anchorPrice = null) {
+    function initChart(symbol = "NASDAQ:BTM") {
         widget = new TradingView.widget({
             "autosize": true,
             "symbol": symbol,
@@ -46,37 +46,34 @@
             "enable_publishing": false,
             "hide_top_toolbar": false,
             "save_image": false,
-            "container_id": "chart-container",
-            "overrides": {
-                "mainSeriesProperties.paneProperties.topMargin": 20,
-                "mainSeriesProperties.paneProperties.bottomMargin": 20
-            }
+            "container_id": "chart-container"
         });
     }
 
-    // Initialize on start
+    // Initialize default chart on start
     initChart();
 
     async function syncData() {
-        const ticker = document.getElementById('tickerInput').value.toUpperCase();
+        const ticker = document.getElementById('tickerInput').value.toUpperCase().trim();
         if (!ticker) return alert("Enter a ticker symbol.");
 
         try {
+            console.log("Fetching live data for:", ticker);
             const response = await fetch(googleUrl);
             const data = await response.json();
             
-            // Search the data for the ticker
-            const row = data.find(r => r.Ticker && r.Ticker.toUpperCase() === ticker);
+            // Access the ticker directly from our new JSON format
+            const stockInfo = data[ticker];
 
-            if (row) {
-                const floorPrice = parseFloat(row.FloorPrice);
-                const purpleLine = parseFloat(row.PurpleLine);
+            if (stockInfo) {
+                const floorPrice = parseFloat(stockInfo.floor);
+                const ceilingPrice = parseFloat(stockInfo.ceiling);
 
-                // GHOST CANDLE LOGIC: Snap chart to Floor Price
-                initChart(ticker, floorPrice);
+                // Reload chart for the new ticker
+                initChart(ticker);
 
                 widget.onChartReady(() => {
-                    // Create the Green Floor Line
+                    // Create the Green Floor Line (CXAI Rule)
                     widget.chart().createShape({
                         price: floorPrice,
                         shape: 'horizontal_line',
@@ -85,31 +82,31 @@
                             linecolor: '#00ff00',
                             linewidth: 3,
                             showLabel: true,
-                            text: "GREEN FLOOR: " + floorPrice
+                            text: "FLOOR: " + floorPrice
                         }
                     });
 
-                    // Create the Purple Dilution Line
+                    // Create the Ceiling/Limit Line
                     widget.chart().createShape({
-                        price: purpleLine,
+                        price: ceilingPrice,
                         shape: 'horizontal_line',
                         lock: true,
                         overrides: {
                             linecolor: '#ff00ff',
                             linewidth: 2,
                             showLabel: true,
-                            text: "PURPLE LIMIT: " + purpleLine
+                            text: "CEILING: " + ceilingPrice
                         }
                     });
                 });
 
-                alert("SYSTEM SYNCED: " + ticker + " Precision Data Loaded.");
+                console.log("System Synced: " + ticker);
             } else {
-                alert("Ticker " + ticker + " not found in Sheet.");
+                alert("Ticker " + ticker + " not found in Spreadsheet.");
             }
         } catch (err) {
-            console.error(err);
-            alert("Connection Error. Check Google URL and Permissions.");
+            console.error("Sync Error:", err);
+            alert("Connection Error. Check if your Apps Script is Deployed as 'Anyone'.");
         }
     }
 </script>
