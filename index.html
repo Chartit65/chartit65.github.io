@@ -25,4 +25,92 @@
 
 <div id="chart-container"></div>
 
-<script type="text/javascript" src="https
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+
+<script>
+    // YOUR NEWEST GOOGLE DEPLOYMENT URL
+    const googleUrl = "https://script.google.com/macros/s/AKfycbwcWhXEgq_o7vNiRn09YKxsJCe4QNYPtEs0IU1zX6RB_R3ELJKF7kFUYsKza8mHz1hU/exec";
+
+    let widget;
+
+    function initChart(symbol = "NASDAQ:TPET") {
+        // Clear previous chart to prevent ghosting
+        const container = document.getElementById("chart-container");
+        if (container) container.innerHTML = "";
+
+        widget = new TradingView.widget({
+            "autosize": true,
+            "symbol": symbol,
+            "interval": "1",
+            "timezone": "Etc/UTC",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "toolbar_bg": "#f1f3f6",
+            "enable_publishing": false,
+            "hide_top_toolbar": false,
+            "save_image": false,
+            "container_id": "chart-container"
+        });
+    }
+
+    // Initialize default chart on page load
+    initChart();
+
+    async function syncData() {
+        const ticker = document.getElementById('tickerInput').value.toUpperCase().trim();
+        if (!ticker) return alert("Enter a ticker symbol.");
+
+        try {
+            console.log("Querying Spreadsheet for:", ticker);
+            
+            // 1. Initial Fetch
+            let response = await fetch(googleUrl);
+            let data = await response.json();
+            
+            // 2. AUTO-ADD LOGIC
+            if (!data[ticker]) {
+                console.log("Ticker not found. Sending Auto-Add command...");
+                await fetch(`${googleUrl}?add=${ticker}`, { mode: 'no-cors' });
+                alert(`TICKER ${ticker} NOT FOUND. AUTO-ADDING TO SHEET... PLEASE WAIT 2 SECONDS.`);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Re-fetch
+                response = await fetch(googleUrl);
+                data = await response.json();
+            }
+
+            const stockInfo = data[ticker];
+            if (stockInfo) {
+                const floorPrice = parseFloat(stockInfo.floor);
+                const ceilingPrice = parseFloat(stockInfo.ceiling);
+
+                initChart(ticker);
+
+                widget.onChartReady(() => {
+                    // Green Floor
+                    widget.chart().createShape({
+                        price: floorPrice,
+                        shape: 'horizontal_line',
+                        lock: true,
+                        overrides: { linecolor: '#00ff00', linewidth: 3, showLabel: true, text: "FLOOR: " + floorPrice }
+                    });
+
+                    // Purple Ceiling
+                    widget.chart().createShape({
+                        price: ceilingPrice,
+                        shape: 'horizontal_line',
+                        lock: true,
+                        overrides: { linecolor: '#ff00ff', linewidth: 2, showLabel: true, text: "CEILING: " + ceilingPrice }
+                    });
+                });
+            }
+        } catch (err) {
+            console.error("System Sync Error:", err);
+            alert("Connection Error. Check Apps Script permissions.");
+        }
+    }
+</script>
+
+</body>
+</html>
