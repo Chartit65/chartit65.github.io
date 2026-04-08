@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Terminal V3.1</title>
+    <title>Terminal V3.2 | Handshake Fixed</title>
     <style>
         body { background-color: #0a0a0a; color: #00ff00; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; }
         #header { height: 50px; background: #111; border-bottom: 2px solid #333; display: flex; align-items: center; padding: 0 20px; justify-content: space-between; }
@@ -25,29 +25,43 @@
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 
 <script>
+    // PASTE YOUR LATEST GOOGLE URL BETWEEN THE QUOTES BELOW
     const googleUrl = "https://script.google.com/macros/s/AKfycbwcWhXEgq_o7vNiRn09YKxsJCe4QNYPtEs0IU1zX6RB_R3ELJKF7kFUYsKza8mHz1hU/exec";
+
+    let tvWidget = null;
 
     function drawChart(symbol, floor, ceiling) {
         document.getElementById("chart-container").innerHTML = "";
-        const widget = new TradingView.widget({
-            "autosize": true, "symbol": symbol, "interval": "1", "theme": "dark",
-            "container_id": "chart-container", "extended_hours": true, "timezone": "Etc/UTC"
+        
+        tvWidget = new TradingView.widget({
+            "autosize": true,
+            "symbol": symbol,
+            "interval": "1",
+            "theme": "dark",
+            "container_id": "chart-container",
+            "extended_hours": true,
+            "timezone": "Etc/UTC"
         });
 
-        widget.onChartReady(() => {
-            if (floor > 0) {
-                widget.chart().createShape({
-                    price: floor, shape: 'horizontal_line', lock: true,
-                    overrides: { linecolor: '#00ff00', linewidth: 3, showLabel: true, text: "FLOOR: " + floor }
-                });
+        // This replaces the broken 'onChartReady' function
+        setTimeout(() => {
+            try {
+                if (floor > 0) {
+                    tvWidget.chart().createShape({
+                        price: floor, shape: 'horizontal_line', lock: true,
+                        overrides: { linecolor: '#00ff00', linewidth: 3, showLabel: true, text: "FLOOR: " + floor }
+                    });
+                }
+                if (ceiling > 0) {
+                    tvWidget.chart().createShape({
+                        price: ceiling, shape: 'horizontal_line', lock: true,
+                        overrides: { linecolor: '#ff00ff', linewidth: 2, showLabel: true, text: "CEILING: " + ceiling }
+                    });
+                }
+            } catch (e) { 
+                console.log("Waiting for chart to stabilize..."); 
             }
-            if (ceiling > 0) {
-                widget.chart().createShape({
-                    price: ceiling, shape: 'horizontal_line', lock: true,
-                    overrides: { linecolor: '#ff00ff', linewidth: 2, showLabel: true, text: "CEILING: " + ceiling }
-                });
-            }
-        });
+        }, 2000); // 2-second wait to ensure the chart is fully loaded
     }
 
     async function sync() {
@@ -55,22 +69,19 @@
         if (!t) return;
 
         try {
-            // Adding a timestamp to the URL to force Google to give us fresh data (Bypasses Cache)
-            const freshUrl = googleUrl + "?nocache=" + new Date().getTime();
-            const res = await fetch(freshUrl);
+            const res = await fetch(googleUrl);
             const data = await res.json();
 
             if (data[t]) {
                 drawChart(t, parseFloat(data[t].floor), parseFloat(data[t].ceiling));
             } else {
-                alert("TICKER NOT IN SHEET. ADDING...");
+                alert("TICKER NOT FOUND. ADDING TO SHEET...");
                 fetch(googleUrl + "?add=" + t, { mode: 'no-cors' });
-                setTimeout(() => sync(), 3000); // Auto-retry after 3 seconds
+                setTimeout(() => sync(), 4000); // Wait 4 seconds for Google to write the row
             }
         } catch (e) {
-            console.error(e);
-            // If Google fails, we still load the chart so you aren't blind
-            drawChart(t, 0, 0);
+            console.error("Sync Error:", e);
+            drawChart(t, 0, 0); // Load basic chart even if Google fails
         }
     }
 
