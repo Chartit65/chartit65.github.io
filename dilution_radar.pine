@@ -34,10 +34,10 @@ if barstate.islast and not na(f_lo) and f_lo != 0
     lbl_w    := label.new(label_time, f_w, "WARRANT STRIKE: $" + str.tostring(f_w), xloc=xloc.bar_time, color=color.yellow, style=label.style_label_left, textcolor=color.black)
 
     l_atm := line.new(screen_anchor, f_atm, margin_time, f_atm, xloc=xloc.bar_time, color=color.purple, width=3, style=line.style_dashed)
-    lbl_a := label.new(label_time, f_atm, "ACTIVE ATM: $" + str.tostring(f_atm), xloc=xloc.bar_time, color=color.purple, style=label.style_label_left, textcolor=color.white)
+    lbl_a := label.new(label_time, f_atm, "ACTIVE ATM: $" + str.tostring(f_atm), xloc=xloc.bar_time, color=color.purple, style=label.style_label_left, textcolor=color.black)
 
     float delta = close - f_lo
-    lbl_delta := label.new(time + (b_width * 5), close, "FLOOR DELTA: $" + str.format("{0,number,#.###}", delta), xloc=xloc.bar_time, color=delta >= 0 ? color.green : color.red, style=label.style_label_left, textcolor=color.white)
+    lbl_delta := label.new(time + (b_width * 5), close, "FLOOR DELTA: $" + str.format("{0,number,#.###}", delta), xloc=xloc.bar_time, color=delta >= 0 ? color.green : color.red, style=label.style_label_left, textcolor=color.black)
 
 var table ver_check = table.new(position.bottom_right, 1, 1)
 table.cell(ver_check, 0, 0, "SYSTEM v80: AUTO-READY", bgcolor=color.black, text_color=color.yellow)
