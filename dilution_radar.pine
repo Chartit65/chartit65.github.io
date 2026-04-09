@@ -7,6 +7,8 @@ i_w   = input.float(0.0, "Manual Warrant")
 var float f_lo = na, var float f_hi = na, var float f_atm = na, var float f_w = na
 if syminfo.ticker == "TPET"
     f_lo := 0.42, f_hi := 0.58, f_atm := 0.615, f_w := 0.74
+else if syminfo.ticker == "BATL"
+    f_lo := 3.20, f_hi := 5.50, f_atm := 3.60, f_w := 4.20
 else
     f_lo := i_lo, f_hi := i_hi, f_atm := i_atm, f_w := i_w
 var box b_green = na, var box b_yellow = na, var line l_atm = na
