@@ -1,1 +1,2 @@
-
+ticker,floor,ceiling,dil1_lo,dil1_hi,dil2_lo,dil2_hi,bnrg,form144,rsplit,volume_pump
+TPET,0.45,1.25,1.10,1.35,0,0,1,1,0,1
