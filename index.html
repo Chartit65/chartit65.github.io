@@ -3,111 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EngageMe Analytics | Advanced Market Dynamics</title>
+    <title>ENGAGEME ANALYTICS | TERMINAL_V.1.0</title>
     <style>
+        /* Bloomberg & HFT Palette */
         :root {
-            --bg: #050505;
-            --card: #0d0d0d;
-            --accent: #00ffcc;
-            --text: #ffffff;
-            --muted: #888888;
+            --bloomberg-black: #000000;
+            --bloomberg-amber: #ffb400; /* Standard Terminal Amber */
+            --bloomberg-blue: #0068ff;
+            --bloomberg-green: #00ff88;
+            --text-main: #e0e0e0;
+            --border: #222;
         }
+
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', -apple-system, system-ui, sans-serif;
+            background-color: var(--bloomberg-black);
+            color: var(--text-main);
+            /* Monospace font gives it the "Machine" feel */
+            font-family: 'Courier New', Courier, monospace;
             margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Top Status Bar */
+        .status-bar {
+            background: #111;
+            border-bottom: 1px solid var(--border);
+            padding: 8px 20px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            color: var(--bloomberg-amber);
+        }
+
+        /* Main Terminal Container */
+        .main-view {
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            overflow: hidden;
+            padding: 20px;
         }
-        .glow {
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(0, 255, 204, 0.05) 0%, transparent 70%);
-            z-index: 0;
-        }
-        .container {
+
+        .terminal-box {
+            border: 2px solid var(--border);
+            padding: 40px;
+            max-width: 800px;
+            background: #050505;
             position: relative;
-            z-index: 1;
-            text-align: center;
-            background: var(--card);
-            padding: 4rem;
-            border-radius: 20px;
-            border: 1px solid #1a1a1a;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            max-width: 600px;
         }
-        .badge {
-            display: inline-block;
-            padding: 6px 16px;
-            background: rgba(0, 255, 204, 0.1);
-            color: var(--accent);
-            border-radius: 100px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(0, 255, 204, 0.2);
+
+        /* The Header Gradient (Bloomberg Style) */
+        .header {
+            border-left: 4px solid var(--bloomberg-amber);
+            padding-left: 20px;
+            margin-bottom: 30px;
         }
+
         h1 {
-            font-size: 3.5rem;
-            margin: 0 0 1rem 0;
-            letter-spacing: -2px;
-            background: linear-gradient(to bottom right, #fff 30%, #555);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 2.5rem;
+            margin: 0;
+            color: var(--bloomberg-amber);
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
-        p {
-            color: var(--muted);
-            font-size: 1.1rem;
+
+        .sub-title {
+            color: var(--bloomberg-blue);
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .data-stream {
+            font-size: 14px;
             line-height: 1.6;
-            margin-bottom: 2.5rem;
+            color: var(--text-main);
+            margin-bottom: 30px;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
         }
-        .contact-box {
-            border-top: 1px solid #1a1a1a;
-            padding-top: 2rem;
+
+        .cmd-line {
+            color: var(--bloomberg-green);
+            font-weight: bold;
         }
-        .email-link {
-            color: var(--text);
+
+        /* Footer / Contact */
+        .contact {
+            font-size: 13px;
+            color: var(--bloomberg-amber);
             text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-        .email-link:hover {
-            color: var(--accent);
-        }
-        .footer {
-            position: absolute;
-            bottom: 2rem;
-            color: #333;
-            font-size: 0.75rem;
-            letter-spacing: 1px;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="glow"></div>
-
-    <div class="container">
-        <div class="badge">Phase 1: Deployment</div>
-        <h1>EngageMe Analytics</h1>
-        <p>Architecting proprietary market microstructure engines. Specializing in real-time liquidity gravity mapping and institutional-grade dilution analysis.</p>
-        
-        <div class="contact-box">
-            <a href="mailto:info@novamulti.com" class="email-link">Contact: info@novamulti.com</a>
-        </div>
-    </div>
-
-    <div class="footer">
-        &copy; 2026 ENGAGEME ANALYTICS. ALL RIGHTS RESERVED.
-    </div>
-
-</body>
-</html>
+            border: 1px solid var(--bloomberg-amber);
+            padding: 10px 20px;
+            transition:
