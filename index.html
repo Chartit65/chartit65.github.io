@@ -3,87 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ENGAGEME ANALYTICS | TERMINAL</title>
+    <title>ENGAGEME ANALYTICS | LIQUIDITY SYSTEMS</title>
     <style>
         body {
-            background-color: #000000;
-            color: #ffb400; /* Bloomberg Amber */
-            font-family: 'Courier New', Courier, monospace;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-        .terminal {
-            width: 100%;
-            max-width: 900px;
-            border: 1px solid #333;
             background-color: #050505;
-            padding: 30px;
-            box-sizing: border-box;
+            color: #ffffff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
         }
-        .header {
-            border-bottom: 2px solid #ffb400;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
+        /* Background Glow for that 'Elite' feel */
+        .glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 104, 255, 0.07) 0%, transparent 70%);
+            z-index: 0;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 5rem;
+            border-radius: 24px;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+            max-width: 700px;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            background: rgba(0, 255, 204, 0.1);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            border-radius: 50px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 2.5rem;
+            color: #00ffcc;
+            font-weight: bold;
         }
         h1 {
-            font-size: 28px;
-            margin: 0;
-            text-transform: uppercase;
-            letter-spacing: 3px;
+            font-size: 3.5rem;
+            letter-spacing: -2px;
+            margin: 0 0 1rem 0;
+            background: linear-gradient(to bottom right, #ffffff, #666666);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .sub {
-            color: #0068ff; /* Bloomberg Blue */
-            font-size: 14px;
-            font-weight: bold;
-            margin-top: 5px;
+        p {
+            color: #888;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 3rem;
         }
-        .line {
-            margin: 15px 0;
-            font-size: 16px;
-            line-height: 1.4;
-        }
-        .cmd {
-            color: #00ff88; /* Green */
+        .terminal-line {
+            font-family: 'Courier New', Courier, monospace;
+            color: #555;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
         }
         .contact-btn {
             display: inline-block;
-            margin-top: 30px;
-            padding: 10px 20px;
-            border: 1px solid #ffb400;
-            color: #ffb400;
+            padding: 1rem 2.5rem;
+            background: transparent;
+            border: 1px solid #fff;
+            color: #fff;
             text-decoration: none;
-            font-weight: bold;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
         }
         .contact-btn:hover {
-            background: #ffb400;
+            background: #fff;
             color: #000;
         }
     </style>
 </head>
 <body>
 
-    <div class="terminal">
-        <div class="header">
-            <h1>ENGAGEME_ANALYTICS</h1>
-            <div class="sub">LIQUIDITY_DYNAMICS // DILUTION_MAPPING_V1.0</div>
+    <div class="glow"></div>
+
+    <div class="container">
+        <div class="status-badge">Phase 1: Systems Staging</div>
+        <h1>ENGAGEME_ANALYTICS</h1>
+        <p>Architecting institutional-grade HFT engines for real-time liquidity mapping and proprietary equity dilution analysis.</p>
+        
+        <div class="terminal-line">
+            [SYS_LOG]: MONITORING_TAPE // CALCULATING_GRAVITY_ZONES...
         </div>
 
-        <div class="line">
-            <span class="cmd">>> STATUS:</span> SYSTEM_ACTIVE_STAGING
-        </div>
-        <div class="line">
-            <span class="cmd">>> ARCHITECTURE:</span> HFT MICROSTRUCTURE ENGINE
-        </div>
-        <div class="line">
-            <span class="cmd">>> MONITORING:</span> REAL-TIME EQUITY DILUTION CYCLES
-        </div>
-        <div class="line">
-            <span class="cmd">>> TARGET:</span> INSTITUTIONAL RISK MANAGEMENT TOOLS
-        </div>
-
-        <a href="mailto:info@novamulti.com" class="contact-btn">ACCESS_TERMINAL: info@novamulti.com</a>
+        <a href="mailto:info@novamulti.com" class="contact-btn">REQUEST ACCESS</a>
     </div>
 
 </body>
