@@ -2,73 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Terminal V4.5 | Local Data Mode</title>
+    <title>EngageMe | Intelligence Terminal V5.0</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #000; color: #00ff00; font-family: monospace; overflow: hidden; }
-
+        body { background: #000; color: #00ff00; font-family: monospace; overflow: hidden; border: 0px solid #00ff00; transition: border 0.1s; }
         #header {
             height: 60px; background: #111;
             border-bottom: 2px solid #333;
             display: flex; align-items: center;
             padding: 0 20px; gap: 16px;
         }
-
         input {
             background: #000; border: 1px solid #00ff00;
             color: #00ff00; padding: 8px; width: 150px;
-            font-family: monospace; font-size: 13px;
-            text-transform: uppercase;
+            font-family: monospace; font-size: 13px; text-transform: uppercase;
         }
-        input:focus { outline: none; box-shadow: 0 0 4px #00ff00; }
-
         button {
             background: #00ff00; color: #000; border: none;
             padding: 8px 20px; cursor: pointer;
             font-weight: bold; font-family: monospace; font-size: 13px;
         }
-        button:hover { background: #00cc00; }
-
-        #status { font-size: 11px; color: #666; flex: 1; text-transform: uppercase; }
-
-        #wrapper {
-            position: relative;
-            height: calc(100vh - 60px);
-            width: 100%;
-            overflow: hidden;
-        }
-
+        #status { font-size: 12px; color: #00ff00; flex: 1; text-transform: uppercase; overflow: hidden; white-space: nowrap; }
+        #wrapper { position: relative; height: calc(100vh - 60px); width: 100%; overflow: hidden; }
         #chart-container { height: 100%; width: 100%; }
-
-        #overlay {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none; z-index: 999;
-        }
-
-        .price-line {
-            position: absolute; left: 0;
-            width: calc(100% - 65px);
-            height: 2px; pointer-events: none;
-        }
-
+        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; }
+        .price-line { position: absolute; left: 0; width: calc(100% - 65px); height: 2px; pointer-events: none; }
         .price-label {
-            position: absolute; right: 70px;
-            font-size: 11px; font-family: monospace; font-weight: bold;
-            background: rgba(0,0,0,0.85);
-            padding: 1px 6px; pointer-events: none;
-            transform: translateY(-50%);
-            white-space: nowrap;
-            border-left: 2px solid currentColor;
+            position: absolute; right: 70px; font-size: 11px; font-family: monospace; font-weight: bold;
+            background: rgba(0,0,0,0.85); padding: 1px 6px; pointer-events: none;
+            transform: translateY(-50%); white-space: nowrap; border-left: 2px solid currentColor;
         }
+        .phantom-alert { color: #fff; background: #d400ff; padding: 2px 4px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="header">
     <input type="text" id="tickerInput" placeholder="ENTER TICKER" maxlength="10" />
-    <button id="syncBtn">SYNC DATA</button>
-    <div id="status">TERMINAL READY</div>
+    <button id="syncBtn">SYNC TERMINAL</button>
+    <div id="status">TERMINAL READY // STANDING BY</div>
 </div>
 
 <div id="wrapper">
@@ -78,136 +50,144 @@
 
 <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
+// --- CONFIGURATION ---
+const API_KEY = 'YOUR_FINNHUB_API_KEY'; // <--- PASTE YOUR KEY HERE
+let socket = null;
+let lastLevels = [];
+let currentTicker = '';
 
-let lastLevels  = [];
-let cachedData  = null; // cache data.json so we only fetch it once per session
-
-function setStatus(msg) {
-    document.getElementById('status').innerText = msg;
+function setStatus(msg, isAlert = false) {
+    const statusEl = document.getElementById('status');
+    statusEl.innerText = msg;
+    statusEl.style.color = isAlert ? "#ff0000" : "#00ff00";
 }
 
-// ── LOAD data.json (same domain — no CORS) ────────────────────────────────────
+// --- DATA & CHARTING ---
 async function loadData() {
-    if (cachedData) return cachedData;
-    const res = await fetch('/data.json?cb=' + Date.now());
-    if (!res.ok) throw new Error('Could not load data.json');
-    cachedData = await res.json();
-    return cachedData;
+    try {
+        const res = await fetch('/data.json?cb=' + Date.now());
+        return await res.json();
+    } catch (e) { return null; }
 }
 
-// ── BUILD CHART ───────────────────────────────────────────────────────────────
 function buildChart(symbol) {
-    const container = document.getElementById('chart-container');
-    container.innerHTML = '';
-
+    document.getElementById('chart-container').innerHTML = '';
     new TradingView.widget({
-        autosize: true,
-        symbol: symbol,
-        interval: "D",
-        timezone: "Etc/UTC",
-        theme: "dark",
-        style: "1",
-        locale: "en",
-        enable_publishing: false,
-        hide_top_toolbar: false,
-        save_image: false,
-        container_id: "chart-container"
+        autosize: true, symbol: symbol, interval: "D", timezone: "Etc/UTC",
+        theme: "dark", style: "1", locale: "en", container_id: "chart-container"
     });
 }
 
-// ── DRAW OVERLAY LINES ────────────────────────────────────────────────────────
 function drawOverlay(levels) {
     const overlay = document.getElementById('overlay');
-    const wrapper = document.getElementById('wrapper');
+    const h = document.getElementById('wrapper').offsetHeight;
     overlay.innerHTML = '';
+    if (!levels.length) return;
 
-    const valid = levels.filter(l => l.price > 0 && !isNaN(l.price));
-    if (valid.length === 0) return;
+    const prices = levels.map(l => l.price);
+    const minP = Math.min(...prices) * 0.95;
+    const maxP = Math.max(...prices) * 1.05;
 
-    const prices = valid.map(l => l.price);
-    const minP   = Math.min(...prices) * 0.80;
-    const maxP   = Math.max(...prices) * 1.20;
-    const h      = wrapper.offsetHeight;
-
-    valid.forEach(l => {
-        const pct   = ((maxP - l.price) / (maxP - minP)) * 100;
+    levels.forEach(l => {
+        const pct = ((maxP - l.price) / (maxP - minP)) * 100;
         const topPx = Math.round((pct / 100) * h);
-
+        
         const line = document.createElement('div');
-        line.className        = 'price-line';
-        line.style.top        = topPx + 'px';
+        line.className = 'price-line';
+        line.style.top = topPx + 'px';
         line.style.background = l.color;
 
         const label = document.createElement('div');
-        label.className   = 'price-label';
-        label.style.top   = topPx + 'px';
+        label.className = 'price-label';
+        label.style.top = topPx + 'px';
         label.style.color = l.color;
-        label.textContent = l.label + '  $' + l.price.toFixed(2);
+        label.textContent = `${l.label} $${l.price.toFixed(4)}`;
 
         overlay.appendChild(line);
         overlay.appendChild(label);
     });
-
     lastLevels = levels;
 }
 
-window.addEventListener('resize', () => {
-    if (lastLevels.length) drawOverlay(lastLevels);
-});
+// --- WEBSOCKET ENGINE (DARK POOL & VOLUME) ---
+function initSocket(ticker) {
+    if (socket) {
+        socket.send(JSON.stringify({'type':'unsubscribe', 'symbol': currentTicker}));
+        socket.close();
+    }
+    
+    currentTicker = ticker;
+    socket = new WebSocket(`wss://ws.finnhub.io?token=${API_KEY}`);
 
-// ── SYNC ──────────────────────────────────────────────────────────────────────
+    socket.onopen = () => {
+        socket.send(JSON.stringify({'type':'subscribe', 'symbol': ticker}));
+        console.log(`CONNECTED TO ${ticker} TAPE`);
+    };
+
+    socket.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        if (msg.type !== 'trade') return;
+
+        msg.data.forEach(t => {
+            const price = t.p;
+            const vol = t.v;
+            const x = t.x; // Exchange ID
+
+            // 1. EXCHANGE ID 4 FILTER (PHANTOM PRINTS)
+            if (x === '4' || x === 4) {
+                setStatus(`[PHANTOM] DARK POOL PRINT: ${vol} @ $${price}`, true);
+                console.log(`%c DARK POOL: ${vol} @ ${price}`, 'background: #d400ff; color: #fff');
+                
+                // Alert for Millions of Shares (BNRG Filter)
+                if (vol > 100000) {
+                    document.body.style.border = "10px solid #d400ff";
+                    setTimeout(() => document.body.style.border = "none", 300);
+                }
+            }
+
+            // 2. SLAUGHTER GUARD (Price vs Dilution Levels)
+            lastLevels.forEach(level => {
+                if (level.label.includes('DIL') && Math.abs(price - level.price) < (level.price * 0.005)) {
+                    setStatus(`!!! SLAUGHTER ALERT: PRICE AT DILUTION LEVEL ${level.price} !!!`, true);
+                }
+            });
+        });
+    };
+}
+
+// --- CONTROL ---
 async function sync() {
     const ticker = document.getElementById('tickerInput').value.toUpperCase().trim();
-    if (!ticker) { setStatus('ENTER A TICKER'); return; }
+    if (!ticker) return;
 
-    setStatus('LOADING: ' + ticker + '...');
-    document.getElementById('overlay').innerHTML = '';
+    setStatus(`SYNCING ${ticker}...`);
     buildChart(ticker);
+    initSocket(ticker);
 
-    try {
-        const data = await loadData();
-        const row  = data[ticker];
-
-        if (!row) {
-            setStatus('TICKER NOT IN DATA.JSON — CHART ONLY');
-            return;
-        }
-
+    const data = await loadData();
+    if (data && data[ticker]) {
+        const row = data[ticker];
         const levels = [
-            { price: parseFloat(row.floor        || 0), label: 'FLOOR',    color: '#00ff00' },
-            { price: parseFloat(row.ceiling      || 0), label: 'CEILING',  color: '#ff00ff' },
-            { price: parseFloat(row.dilution1_lo || 0), label: 'DIL1 LO', color: '#ff4444' },
-            { price: parseFloat(row.dilution1_hi || 0), label: 'DIL1 HI', color: '#ff4444' },
-            { price: parseFloat(row.dilution2_lo || 0), label: 'DIL2 LO', color: '#cc44ff' },
-            { price: parseFloat(row.dilution2_hi || 0), label: 'DIL2 HI', color: '#cc44ff' },
-        ].filter(l => l.price > 0 && !isNaN(l.price));
-
-        if (levels.length === 0) {
-            setStatus('NO LEVELS IN DATA.JSON — CHART ONLY');
-        } else {
-            setTimeout(() => {
-                drawOverlay(levels);
-                setStatus('ONLINE // ' + ticker + ' // ' + levels.length + ' LEVELS LOADED');
-            }, 1800);
-        }
-
-    } catch (err) {
-        console.error(err);
-        setStatus('ERROR LOADING DATA.JSON');
+            { price: parseFloat(row.floor), label: 'FLOOR', color: '#00ff00' },
+            { price: parseFloat(row.ceiling), label: 'CEILING', color: '#ff00ff' },
+            { price: parseFloat(row.dilution1_lo), label: 'DIL LO', color: '#ff4444' },
+            { price: parseFloat(row.dilution1_hi), label: 'DIL HI', color: '#ff4444' }
+        ].filter(l => !isNaN(l.price) && l.price > 0);
+        
+        drawOverlay(levels);
+        setStatus(`ONLINE // ${ticker} // LEVELS LOADED`);
+    } else {
+        setStatus(`ONLINE // ${ticker} // NO LOCAL DATA FOUND`);
     }
 }
 
-// ── EVENTS ────────────────────────────────────────────────────────────────────
 document.getElementById('syncBtn').onclick = sync;
-document.getElementById('tickerInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') sync();
-});
+document.getElementById('tickerInput').onkeydown = (e) => { if(e.key === 'Enter') sync(); };
 
 window.onload = () => {
     document.getElementById('tickerInput').value = 'AAPL';
     sync();
 };
-
 </script>
 </body>
 </html>
